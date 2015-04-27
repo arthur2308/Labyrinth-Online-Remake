@@ -1,0 +1,20 @@
+{
+  "name": "Labyrinth",
+  "description": "Chrome Game using sockets!",
+  "version": "1.0",
+  "manifest_version": 2,
+  "app": {
+    "background": {
+      "scripts": ["application.js"]
+    }
+  },
+  "icons": {
+    "16": "LabyrinthIcon16.png",
+    "128": "LabyrinthIcon128.png"
+  },
+  "sockets": {
+    "tcp": {
+      "connect": "*:8421"
+    }
+  }
+}

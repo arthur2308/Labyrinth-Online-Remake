@@ -1,0 +1,20 @@
+{
+  "name": "Labyrinth",
+  "version": "1.0.0",
+  "description": "Multiplayer online Javascript-based board game.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://poptarts@bitbucket.org/ehargitt/labyrinth-online.git"
+  },
+  "author": "Arthur B., Eric H. & Micah K.",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-jslint": "^0.2.2"
+  }
+}
