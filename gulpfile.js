@@ -5,7 +5,8 @@ var gulp = require('gulp'),
   _jslintGlob = [
     '*.js',
     'client/*.js',
-    'server/*.js'
+    'server/*.js',
+    '!**/*.min.js'
   ];
 
 gulp.task('jslint', function () {

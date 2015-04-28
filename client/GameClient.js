@@ -24,11 +24,11 @@ var socks = chrome.sockets.tcp,
     return decoder.decode(dataView);
   };
 
-$(document).ready(function (){
+$(document).ready(function () {
+  "use strict";
 
   socks.onReceive.addListener(function (info) {
-    log("Received " + JSON.stringify(info));
-    log("Data " + JSON.stringify(info.data));
+    log("Received: " + ab2str(info.data));
   });
 
   socks.onReceiveError.addListener(function (info) {
