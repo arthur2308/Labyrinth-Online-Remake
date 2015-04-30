@@ -14,7 +14,7 @@ module.exports = (function () {
       // Add a 'data' event handler to this instance of socket
       sock.on('data', function (data) {
 
-        console.log('DATA ' + sock.remoteAddress + ': ' + data);
+        console.log('DATA ' + sock.remoteAddress + ':' + sock.remotePort + ' : ' + data);
         // Write the data back to the socket, the client will receive it as data from the server
         if (sock.write('You said "' + data + '"', 'utf8')) {
           console.log('SENT REPLY');
@@ -32,8 +32,8 @@ module.exports = (function () {
 
   return {
     begin: function () {
-      server.listen(8421);
-      console.log('LISTENING');
+      	server.listen(8421);
+      	console.log('LISTENING');
     }
   };
 }());

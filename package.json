@@ -12,7 +12,13 @@
   },
   "author": "Arthur B., Eric H. & Micah K.",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+	"express": ">= 4.12.3",
+	"prompt": ">= 0.2.14",
+	"readline-sync": ">= 1.2.12", 
+	"stdio": ">= 0.2.7",
+	"shuffle-array": ">= 0.1.0"
+},
   "devDependencies": {
     "gulp": "^3.8.11",
     "gulp-jslint": "^0.2.2"
