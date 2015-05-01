@@ -19,7 +19,6 @@ module.exports = (function () {
         if (sock.write('You said "' + data + '"', 'utf8')) {
           console.log('SENT REPLY');
         }
-
       });
 
       // Add a 'close' event handler to this instance of socket
@@ -32,8 +31,8 @@ module.exports = (function () {
 
   return {
     begin: function () {
-      	server.listen(8421);
-      	console.log('LISTENING');
+      server.listen(8421);
+      console.log('LISTENING');
     }
   };
 }());
