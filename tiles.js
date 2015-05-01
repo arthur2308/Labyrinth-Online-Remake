@@ -7,8 +7,8 @@ var Tile = require('./tile.js'),
 // Tiles class
 // Author: Eric Hargitt
 // Description: Represents the tiles used in the game board. This creates
-//a set of Tile objects. The tiles are arranged in
-//a single array as follows:
+//              a set of Tile objects. The tiles are arranged in
+//              a single array as follows:
 //
 //  [ 0][ 1][ 2][ 3][ 4][ 5][ 6]   *PT = Playable Tile
 //  [ 7][ 8][ 9][10][11][12][13]
@@ -18,15 +18,16 @@ var Tile = require('./tile.js'),
 //  [35][36][37][38][39][40][41]
 //  [42][43][44][45][46][47][48][PT]
 //
-//The Tiles class will randomize the tileType and tokIDs,
-//then pair them together in a Tile object to create the
-//randomized game board.
+// The Tiles class will randomize the tileType and tokIDs,
+// then pair them together in a Tile object to create the
+// randomized game board. Note that index 49 of tileSet
+// holds the playable tile. 
 //-------------------------------------------------
 
 function Tiles() {
   "use strict";
   var i;
-  // Represents the 50 game tiles, either (s)traight, (t)ee, or (a)ngle
+  // Represents the 50 game tiles, either (s)traight[12], (t)ee[18], or (a)ngle[20]
   this.tileTypes = [
     's', 's', 's', 's', 's', 's', 's', 's', 's', 's', 's', 's',
     't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
@@ -83,4 +84,50 @@ t.slideUp = function (index) {
   this.playableTileLastCoord = index;
 };
 
+// Slides all the tiles to the right at given row (0 - 6)
+t.slideRight = function (index) {
+  "use strict";
+  var i,
+    tempTileHolder = 0;
+
+  for (i = 0; i < 7; i++) {
+    tempTileHolder = this.tileSet[(index * 7) + i];
+    this.tileSet[(index * 7) + i] = this.tileSet[49];
+    this.tileSet[49] = tempTileHolder;
+  }
+  this.playableTileLastCoord = ((index + 1) * 7) - 1;
+};
+
+// Slides all the tiles to the left at given row (0 - 6)
+t.slideLeft = function (index) {
+  "use strict";
+  var i,
+    tempTileHolder = 0;
+
+  for (i = 0; i < 7; i--) {
+    tempTileHolder = this.tileSet[((7 * index) + 6) - i];
+    this.tileSet[((7 * index) + 6) - i] = this.tileSet[49];
+    this.tileSet[49] = tempTileHolder;
+    this.playableTileLastCoord = index * 7;
+  }
+};
+
+// Prints a visual representation of the game board. 
+t.printTileSet = function () {
+  "use strict";
+  var i,
+    j,
+    displayStr = "",
+    rowStr = "";
+
+  for (i = 0; i < 7; i++) {
+    rowStr = "";
+    for (j = 0; j < 7; j++) {
+      rowStr += ("[" + this.tileSet[i * j].print() + "]");
+    }
+    displayStr += (rowStr + "\n");
+  }
+  displayStr += this.tileSet[49];
+  console.log(displayStr);
+};
 module.exports = Tiles;
