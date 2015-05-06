@@ -113,30 +113,20 @@ t.slideLeft = function (index) {
   var i,
     tempTileHolder = 0;
 
-  for (i = 0; i < 7; i -= 1) {
+  for (i = 0; i < 7; i += 1) {
     tempTileHolder = this.tileSet[((7 * index) + 6) - i];
     this.tileSet[((7 * index) + 6) - i] = this.tileSet[49];
     this.tileSet[49] = tempTileHolder;
-    this.playableTileLastCoord = index * 7;
   }
+  this.playableTileLastCoord = index * 7;
 };
 
 // Prints a visual representation of the game board. 
 t.printTileSet = function () {
   "use strict";
-  var i,
-    j,
-    displayStr = "",
-    rowStr = "";
-
-  for (i = 0; i < 7; i += 1) {
-    rowStr = "";
-    for (j = 0; j < 7; j += 1) {
-      rowStr += ("[" + this.tileSet[i * j].print() + "]");
-    }
-    displayStr += (rowStr + "\n");
+  var i;
+  for (i = 0; i < 50; i += 1) {
+    console.log(i + " " + this.tileSet[i].openingTable);
   }
-  displayStr += this.tileSet[49];
-  console.log(displayStr);
 };
 module.exports = Tiles;

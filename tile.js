@@ -3,7 +3,20 @@
 //-------------------------------------
 // Tile class
 // Author: Eric Hargitt
-// Description: 
+// Description: This object represents a tile on the game board. The tile type is specified by the 
+//              constructor, which creates a 4-element boolean array that represents whether that side
+//              of the tile is open. For example:
+//
+//                  UP         
+//              =============
+//              |           |
+//         LEFT |           | RIGHT     ==         array [UP][LEFT][DOWN][RIGHT]
+//              |           |
+//              |           |
+//              ============
+//                  DOWN
+//
+//              As the tile rotates, the elements in the array (called openingTable) are rotated.
 //-------------------------------------
 
 // Generates random numbers. Creates non-uniform distribution. 
@@ -26,7 +39,7 @@ function Tile(tileType, tokID) {
   } else if (this.tileType === 't') {
     // (t)ee tile
     this.openingTable = [true, true, false, true];
-  } else {
+  } else if (this.tileType === 'a') {
     // (a)ngle tile
     this.openingTable = [true, true, false, false];
   }
