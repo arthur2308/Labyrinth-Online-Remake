@@ -1,4 +1,4 @@
-/*jslint indent: 2, node: true, nomen: true, plusplus: true */
+/*jslint indent: 2, node: true, nomen: true */
 
 var Tile = require('./tile.js'),
   shuffle = require('shuffle-array');
@@ -44,11 +44,14 @@ function Tiles() {
   shuffle(this.tileTypes);
   shuffle(this.tokIDs);
 
+  console.log("Shuffled tile types: " + this.tileTypes);
+  console.log("Shuffled tokIDs: " + this.tokIDs);
+
   this.tileSet = [];
-  for (i = 0; i < this.tokIDs.length; i++) {
+  for (i = 0; i < this.tokIDs.length; i += 1) {
     this.tileSet[i] = new Tile(this.tileTypes[i], this.tokIDs[i]);
   }
-  for (i = 24; i < this.tileTypes.length; i++) {
+  for (i = 24; i < this.tileTypes.length; i += 1) {
     this.tileSet[i] = new Tile(this.tileTypes[i], -1);
   }
 
@@ -56,13 +59,19 @@ function Tiles() {
 }
 var t = Tiles.prototype;
 
+// sets up the Tiles object with the parameters
+t.setup = function (tileSet) {
+  "use strict";
+  this.tileSet = tileSet;
+};
+
 // Slides all tiles down at the given index, which is the column number (0 - 6)
 t.slideDown = function (index) {
   "use strict";
   var i,
     tempTileHolder = 0;
 
-  for (i = 0; i < 7; i++) {
+  for (i = 0; i < 7; i += 1) {
     tempTileHolder = this.tileSet[(i * 7) + index];
     this.tileSet[(i * 7) + index] = this.tileSet[49];
     this.tileSet[49] = tempTileHolder;
@@ -76,7 +85,7 @@ t.slideUp = function (index) {
   var i,
     tempTileHolder = 0;
 
-  for (i = 6; i >= 0; i--) {
+  for (i = 6; i >= 0; i -= 1) {
     tempTileHolder = this.tileSet[(i * 7) + index];
     this.tileSet[(i * 7) + index] = this.tileSet[49];
     this.tileSet[49] = tempTileHolder;
@@ -90,7 +99,7 @@ t.slideRight = function (index) {
   var i,
     tempTileHolder = 0;
 
-  for (i = 0; i < 7; i++) {
+  for (i = 0; i < 7; i += 1) {
     tempTileHolder = this.tileSet[(index * 7) + i];
     this.tileSet[(index * 7) + i] = this.tileSet[49];
     this.tileSet[49] = tempTileHolder;
@@ -104,7 +113,7 @@ t.slideLeft = function (index) {
   var i,
     tempTileHolder = 0;
 
-  for (i = 0; i < 7; i--) {
+  for (i = 0; i < 7; i -= 1) {
     tempTileHolder = this.tileSet[((7 * index) + 6) - i];
     this.tileSet[((7 * index) + 6) - i] = this.tileSet[49];
     this.tileSet[49] = tempTileHolder;
@@ -120,9 +129,9 @@ t.printTileSet = function () {
     displayStr = "",
     rowStr = "";
 
-  for (i = 0; i < 7; i++) {
+  for (i = 0; i < 7; i += 1) {
     rowStr = "";
-    for (j = 0; j < 7; j++) {
+    for (j = 0; j < 7; j += 1) {
       rowStr += ("[" + this.tileSet[i * j].print() + "]");
     }
     displayStr += (rowStr + "\n");

@@ -34,22 +34,9 @@ gs.createNewGame = function (playerIds) {
   this.setOfToks = new Tokens(); // Creates new set of Tokens
 };
 
-gs.getPlayers = function () {
+gs.marshal = function () {
   "use strict";
-
-  return this.players;
-};
-
-gs.getTiles = function () {
-  "use strict";
-
-  return this.setOfTiles;
-};
-
-gs.getToks = function () {
-  "use strict";
-
-  return this.setOfToks;
+  console.log(JSON.stringify(this.players));
 };
 
 module.exports = GameState;
