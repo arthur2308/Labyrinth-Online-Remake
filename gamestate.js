@@ -34,9 +34,53 @@ gs.createNewGame = function (playerIds) {
   this.setOfToks = new Tokens(); // Creates new set of Tokens
 };
 
+// Just testing
 gs.marshal = function () {
   "use strict";
   console.log(JSON.stringify(this.players));
+};
+
+gs.movePlayer = function (playerIndex, direction) {
+  "use strict";
+  var tempPos;
+
+  if (direction === 'u') {
+    // Move player up 1 tile
+    tempPos = this.players[playerIndex].boardLocation - 7;
+    if (tempPos < 0 || tempPos > 48) {
+      return false;
+    }
+    this.players[playerIndex].boardLocation = tempPos;
+    return true;
+  }
+
+  if (direction === 'r') {
+    // Move player right 1 tile
+    if ((this.players[playerIndex].boardLocation + 1) % 7 === 0) {
+      return false;
+    }
+    this.players[playerIndex].boardLocation += 1;
+    return true;
+  }
+
+  if (direction === 'd') {
+    // Move player down 1 tile
+    tempPos = this.players[playerIndex].boardLocation + 7;
+    if (tempPos < 0 || tempPos > 48) {
+      return false;
+    }
+    this.players[playerIndex].boardLocation = tempPos;
+    return true;
+  }
+
+  if (direction === 'l') {
+    // Move player left 1 tile
+    if (this.players[playerIndex].boardLocation % 7 === 0) {
+      return false;
+    }
+    this.players[playerIndex].boardLocation -= 1;
+    return true;
+  }
 };
 
 module.exports = GameState;
