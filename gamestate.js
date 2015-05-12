@@ -20,26 +20,25 @@ function GameState() {
   this.setOfToks = 0;       // Will hold Tokens object
   this.activePlayerNum = 0; // Shows whose turn it is to play by index of players array 
   this.winnerId = -1;       // if this is set, indicated a player w/ index in players array won
+  this.drawnToks = [];
 }
 var gs = GameState.prototype;
 
 gs.createNewGame = function (playerIds) {
   "use strict";
 
-  var i;
+  var i, corners = [0, 6, 42, 48];
   for (i = 0; i < playerIds.length; i++) {
-    this.players[i] = new this.Player(playerIds[i]);
+    this.players[i] = new Player(playerIds[i], corners[i], []);
   }                              // Initialize each player w/ ID
   this.setOfTiles = new Tiles(); // Creates new set of Tiles
   this.setOfToks = new Tokens(); // Creates new set of Tokens
+  for (i = 0; i < 3; i += 1) {
+    this.drawnToks[i] = this.setOfToks.drawToken();
+  }
 };
 
-// Just testing
-gs.marshal = function () {
-  "use strict";
-  console.log(JSON.stringify(this.players));
-};
-
+// Move a player up, right, down, or left. 
 gs.movePlayer = function (playerIndex, direction) {
   "use strict";
   var tempPos;
@@ -82,5 +81,47 @@ gs.movePlayer = function (playerIndex, direction) {
     return true;
   }
 };
+
+// Need to create a function to detect if a player has landed on a tile
+
+gs.marshal = function () {
+  "use strict";
+  var returnJSON = "", i, fs;
+  // Do the players
+  returnJSON += this.players.length + "\n"; // Num of players in file
+  for (i = 0; i < this.players.length; i += 1) {
+    returnJSON += JSON.stringify(this.players[i].id) + "\n";
+    returnJSON += JSON.stringify(this.players[i].boardLocation) + "\n";
+    returnJSON += JSON.stringify(this.players[i].collectedTokens) + "\n";
+  }
+
+  // Do the tiles
+  for (i = 0; i < 50; i += 1) {
+    returnJSON += this.setOfTiles.tileSet[i].tokID + "\n";
+    returnJSON += this.setOfTiles.tileSet[i].openingTable + "\n";
+  }
+  returnJSON += this.setOfTiles.playableTileLastCoord + "\n";
+
+  // Do the tokens
+  returnJSON += this.setOfToks.toks + "\n";
+  returnJSON += this.setOfToks.drawIndex + "\n";
+
+  // Misc attributes
+  returnJSON += this.activePlayerNum + "\n";
+  returnJSON += this.winnerId + "\n";
+  returnJSON += this.drawnToks;
+  fs = require('fs');
+  fs.writeFile("game.txt", returnJSON, function (err) {
+    if (err) {
+      return console.log(err);
+    }
+    console.log("The file was saved!");
+  });
+  return returnJSON;
+};
+
+//gs.createFromFile = function (file) {
+//  "use strict";
+//};
 
 module.exports = GameState;

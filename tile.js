@@ -46,7 +46,7 @@ function Tile(tileType, tokID) {
 
   // Rotate the tile a random number of times.
   this.rotate(rand);
-  console.log("Created tile of type " + tileType + " and rotated it " + rand + " times.");
+  //console.log("Created tile of type " + tileType + " and rotated it " + rand + " times.");
 }
 var tile = Tile.prototype;
 
@@ -60,7 +60,7 @@ tile.setup = function (tokID, tableInput) {
 // Rotates clockwise the openingTable the specified number of times. 
 tile.rotate = function (numRotations) {
   "use strict";
-  console.log("Rotating " + numRotations + " times.");
+  //console.log("Rotating " + numRotations + " times.");
   var i,
     temp;
   for (i = 0; i < numRotations; i += 1) {

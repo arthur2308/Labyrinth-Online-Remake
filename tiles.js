@@ -44,8 +44,8 @@ function Tiles() {
   shuffle(this.tileTypes);
   shuffle(this.tokIDs);
 
-  console.log("Shuffled tile types: " + this.tileTypes);
-  console.log("Shuffled tokIDs: " + this.tokIDs);
+  //console.log("Shuffled tile types: " + this.tileTypes);
+  //console.log("Shuffled tokIDs: " + this.tokIDs);
 
   this.tileSet = [];
   for (i = 0; i < this.tokIDs.length; i += 1) {
@@ -54,6 +54,7 @@ function Tiles() {
   for (i = 24; i < this.tileTypes.length; i += 1) {
     this.tileSet[i] = new Tile(this.tileTypes[i], -1);
   }
+  shuffle(this.tileSet);
 
   this.playableTileLastCoord = -1;
 }
