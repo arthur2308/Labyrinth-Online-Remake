@@ -13,11 +13,12 @@
   "author": "Arthur B., Eric H. & Micah K.",
   "license": "MIT",
   "dependencies": {
-	"shuffle-array": ">= 0.1.0",
-        "fs": ">= 0.0.2"
-},
+    "shuffle-array": ">= 0.1.0",
+    "fs": ">= 0.0.2"
+  },
   "devDependencies": {
     "gulp": "^3.8.11",
-    "gulp-jslint": "^0.2.2"
+    "gulp-jslint": "^0.2.2",
+    "gulp-util": "^3.0.4"
   }
 }
