@@ -1,4 +1,4 @@
-/*jslint indent: 2, node: true, nomen: true, plusplus: true */
+/*jslint indent: 2, node: true, nomen: true, stupid: true, plusplus: true */
 
 var Player = require('./player.js'), // Import player.js
   Tiles = require('./tiles.js'),     // Import tiles.js
@@ -111,17 +111,18 @@ gs.marshal = function () {
   returnJSON += this.winnerId + "\n";
   returnJSON += this.drawnToks;
   fs = require('fs');
-  fs.writeFile("game.txt", returnJSON, function (err) {
-    if (err) {
-      return console.log(err);
-    }
-    console.log("The file was saved!");
-  });
+  fs.writeFileSync("game.txt", returnJSON);
   return returnJSON;
 };
 
-//gs.createFromFile = function (file) {
-//  "use strict";
-//};
+gs.createFromFile = function (file) {
+  "use strict";
+  var fs, gameStr = [];
+  fs = require('fs');
+  fs.readFileSync(file, 'utf8').toString().split('\n').forEach(function (line) {
+    gameStr.push(line);
+  });
+  return gameStr;
+};
 
 module.exports = GameState;
