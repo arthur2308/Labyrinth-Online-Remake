@@ -142,7 +142,7 @@ function buildTable() {
 
   for (i = 0; i < BOARD_WIDTH * BOARD_WIDTH; i += 1) {
     piece = new Image();
-    if (xPos == 0 || yPos == 0 || xPos / _pieceWidth == BOARD_WIDTH-1 || yPos / _pieceHeight == BOARD_WIDTH-1) {
+    if (xPos === 0 || yPos === 0 || xPos / _pieceWidth === BOARD_WIDTH-1 || yPos / _pieceHeight === BOARD_WIDTH-1) {
       piece.src = "bkgrd.png";
     }
     else {
