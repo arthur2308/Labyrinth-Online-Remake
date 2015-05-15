@@ -2,18 +2,18 @@
 /*globals
   $, chrome, document, DataView, TextEncoder, TextDecoder
 */
-const VALID_PLAY_TINT = '#696969',
-      BOARD_WIDTH = 9;
-var _canvas,
-    _stage,
-    _img,
-    _pieceWidth,
-    _pieceHeight,
-    _boardWidth,
-    _boardHeight,
-    _currentPiece,
-    _previousLoc,
-    _mouse;
+var VALID_PLAY_TINT = '#696969',
+  BOARD_WIDTH = 9,
+  _canvas,
+  _stage,
+  _img,
+  _pieceWidth,
+  _pieceHeight,
+  _boardWidth,
+  _boardHeight,
+  _currentPiece,
+  _previousLoc,
+  _mouse;
 
 
 var socks = chrome.sockets.tcp,
@@ -157,17 +157,3 @@ function buildTable() {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
