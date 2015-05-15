@@ -117,11 +117,23 @@ gs.marshal = function () {
 
 gs.createFromFile = function (file) {
   "use strict";
-  var fs, gameStr = [];
+  var fs, gameStr, i, numPlayers, playerIndex;
   fs = require('fs');
-  fs.readFileSync(file, 'utf8').toString().split('\n').forEach(function (line) {
-    gameStr.push(line);
-  });
+  gameStr = fs.readFileSync(file).toString().split('\n');
+
+  // Get number of players
+  numPlayers = gameStr[0];
+
+  // Recreate players
+  i = 1;
+  playerIndex = 0;
+  while (i < ((numPlayers * 3) + 1)) {
+    this.players[playerIndex].id = gameStr[i];
+    i += 1;
+    this.players[playerIndex].boardLocation = gameStr[i];
+    i += 1;
+    this.players[playerIndex].collectedTokens = gameStr[i];
+  }
   return gameStr;
 };
 
