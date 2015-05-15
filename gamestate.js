@@ -119,23 +119,57 @@ gs.marshal = function () {
 
 gs.createFromFile = function (file) {
   "use strict";
-  var fs, gameStr, i, numPlayers, playerIndex;
+  var fs, gameStr, i, numPlayers, currentIndex;
   fs = require('fs');
   gameStr = fs.readFileSync(file).toString().split('\n');
 
   // Get number of players
   numPlayers = gameStr[0];
+  console.log(numPlayers);
 
   // Recreate players
   i = 1;
-  playerIndex = 0;
+  currentIndex = 0;
   while (i < ((numPlayers * 3) + 1)) {
-    this.players[playerIndex].id = gameStr[i];
+    this.players[currentIndex] = new Player(0, 0, []);
+    this.players[currentIndex].id = gameStr[i];
     i += 1;
-    this.players[playerIndex].boardLocation = gameStr[i];
+    this.players[currentIndex].boardLocation = gameStr[i];
     i += 1;
-    this.players[playerIndex].collectedTokens = gameStr[i];
+    this.players[currentIndex].collectedTokens = gameStr[i];
+    i += 1;
+    currentIndex += 1;
   }
+
+  // Recreate the gameboard
+  currentIndex = 0;
+  this.setOfTiles = new Tiles();
+  while (i <= currentIndex) {
+    gameStr[i] = this.setOfTiles.tileSet[currentIndex].tokId;
+    i += 1;
+    gameStr[i] = this.setOfTiles.tileSet[currentIndex].openingTable;
+    i += 1;
+    currentIndex += 1;
+  }
+
+  // Recreate last index
+  this.setOfTiles.playableTileLastCoord = gameStr[i];
+  i += 1;
+
+  // Recreate the tokens
+  this.setOfToks = new Tokens();
+  this.setOfToks.toks = gameStr[i];
+  i += 1;
+  this.setOfToks.drawIndex = gameStr[i];
+  i += 1;
+
+  // Recreate misc attributes
+  this.activePlayerNum = gameStr[i];
+  i += 1;
+  this.winnerId = gameStr[i];
+  i += 1;
+  this.drawnToks = gameStr[i];
+
   return gameStr;
 };
 
