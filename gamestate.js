@@ -46,7 +46,7 @@ gs.movePlayer = function (playerIndex, direction) {
   if (direction === 'u') {
     // Move player up 1 tile
     tempPos = this.players[playerIndex].boardLocation - 7;
-    if (tempPos < 0 || tempPos > 48) {
+    if ((tempPos < 0 || tempPos > 48) || (setOfTiles.tileSet[tempPos].openingTable[2] === false)) {
       return false;
     }
     this.players[playerIndex].boardLocation = tempPos;
@@ -55,7 +55,8 @@ gs.movePlayer = function (playerIndex, direction) {
 
   if (direction === 'r') {
     // Move player right 1 tile
-    if ((this.players[playerIndex].boardLocation + 1) % 7 === 0) {
+    tempPos = this.players[playerIndex].boardLocation + 1;
+    if ((tempPos % 7 === 0) || (setOfTiles.tileSet[tempPos].openingTable[3] === false)) {
       return false;
     }
     this.players[playerIndex].boardLocation += 1;
@@ -65,7 +66,7 @@ gs.movePlayer = function (playerIndex, direction) {
   if (direction === 'd') {
     // Move player down 1 tile
     tempPos = this.players[playerIndex].boardLocation + 7;
-    if (tempPos < 0 || tempPos > 48) {
+    if ((tempPos < 0 || tempPos > 48) || (setOfTiles.tileSet[tempPos].openingTable[0] === false)) {
       return false;
     }
     this.players[playerIndex].boardLocation = tempPos;
@@ -74,7 +75,8 @@ gs.movePlayer = function (playerIndex, direction) {
 
   if (direction === 'l') {
     // Move player left 1 tile
-    if (this.players[playerIndex].boardLocation % 7 === 0) {
+    tempPos = players[playerIndex].boardLocation - 1; 
+    if ((tempPos % 7 === 0) || (setOfTiles.tileSet[tempPos].openingtable[1] === false)) {
       return false;
     }
     this.players[playerIndex].boardLocation -= 1;
