@@ -45,8 +45,11 @@ gs.movePlayer = function (playerIndex, direction) {
 
   if (direction === 'u') {
     // Move player up 1 tile
+    tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation - 7;
-    if ((tempPos < 0 || tempPos > 48) || (this.setOfTiles.tileSet[tempPos].openingTable[2] === false)) {
+    console.log("tempPos: " + tempPos);
+    if ((tempPos < 0 || tempPos > 48) || ((this.setOfTiles.tileSet[tempPos].openingTable[2] === false) ||
+      (this.setOfTiles.tileSet[tempPos + 7].openingTable[0] === false))) {
       return false;
     }
     this.players[playerIndex].boardLocation = tempPos;
@@ -55,8 +58,12 @@ gs.movePlayer = function (playerIndex, direction) {
 
   if (direction === 'r') {
     // Move player right 1 tile
+    // console.log("tempPos: " + tempPos); 
+    tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation + 1;
-    if ((tempPos % 7 === 0) || (this.setOfTiles.tileSet[tempPos].openingTable[3] === false)) {
+    console.log("tempPos: " + tempPos);
+    if ((tempPos % 7 === 0) || ((this.setOfTiles.tileSet[tempPos].openingTable[3] === false) ||
+        (this.setOfTiles.tileSet[tempPos - 1].openingTable[1] === false))) {
       return false;
     }
     this.players[playerIndex].boardLocation += 1;
@@ -65,8 +72,12 @@ gs.movePlayer = function (playerIndex, direction) {
 
   if (direction === 'd') {
     // Move player down 1 tile
+    //console.log("tempPos: " + tempPos); 
+    tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation + 7;
-    if ((tempPos < 0 || tempPos > 48) || (this.setOfTiles.tileSet[tempPos].openingTable[0] === false)) {
+    console.log("tempPos: " + tempPos);
+    if ((tempPos < 0 || tempPos > 48) || ((this.setOfTiles.tileSet[tempPos].openingTable[0] === false) ||
+      (this.setOfTiles.tileSet[tempPos - 7].openingTable[2] === false))) {
       return false;
     }
     this.players[playerIndex].boardLocation = tempPos;
@@ -75,8 +86,12 @@ gs.movePlayer = function (playerIndex, direction) {
 
   if (direction === 'l') {
     // Move player left 1 tile
+    // console.log("tempPos: " + tempPos); 
+    tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation - 1;
-    if ((tempPos % 7 === 0) || (this.setOfTiles.tileSet[tempPos].openingtable[1] === false)) {
+    console.log("tempPos: " + tempPos);
+    if ((tempPos % 7 === 0) || (this.setOfTiles.tileSet[tempPos].openingtable[1] === false) ||
+        (this.setOfTiles.tileSet[tempPos + 1].openingTable[3] === false)) {
       return false;
     }
     this.players[playerIndex].boardLocation -= 1;
@@ -119,23 +134,57 @@ gs.marshal = function () {
 
 gs.createFromFile = function (file) {
   "use strict";
-  var fs, gameStr, i, numPlayers, playerIndex;
+  var fs, gameStr, i, numPlayers, currentIndex;
   fs = require('fs');
   gameStr = fs.readFileSync(file).toString().split('\n');
 
   // Get number of players
   numPlayers = gameStr[0];
+  console.log(numPlayers);
 
   // Recreate players
   i = 1;
-  playerIndex = 0;
+  currentIndex = 0;
   while (i < ((numPlayers * 3) + 1)) {
-    this.players[playerIndex].id = gameStr[i];
+    this.players[currentIndex] = new Player(0, 0, []);
+    this.players[currentIndex].id = gameStr[i];
     i += 1;
-    this.players[playerIndex].boardLocation = gameStr[i];
+    this.players[currentIndex].boardLocation = gameStr[i];
     i += 1;
-    this.players[playerIndex].collectedTokens = gameStr[i];
+    this.players[currentIndex].collectedTokens = gameStr[i];
+    i += 1;
+    currentIndex += 1;
   }
+
+  // Recreate the gameboard
+  currentIndex = 0;
+  this.setOfTiles = new Tiles();
+  while (i <= currentIndex) {
+    gameStr[i] = this.setOfTiles.tileSet[currentIndex].tokId;
+    i += 1;
+    gameStr[i] = this.setOfTiles.tileSet[currentIndex].openingTable;
+    i += 1;
+    currentIndex += 1;
+  }
+
+  // Recreate last index
+  this.setOfTiles.playableTileLastCoord = gameStr[i];
+  i += 1;
+
+  // Recreate the tokens
+  this.setOfToks = new Tokens();
+  this.setOfToks.toks = gameStr[i];
+  i += 1;
+  this.setOfToks.drawIndex = gameStr[i];
+  i += 1;
+
+  // Recreate misc attributes
+  this.activePlayerNum = gameStr[i];
+  i += 1;
+  this.winnerId = gameStr[i];
+  i += 1;
+  this.drawnToks = gameStr[i];
+
   return gameStr;
 };
 
