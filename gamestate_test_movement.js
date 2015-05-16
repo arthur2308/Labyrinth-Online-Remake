@@ -2,7 +2,8 @@
 var GameState  = require('./gamestate.js'), gs, i, arr;
 
 gs = new GameState();
-gs.createNewGame([12, 14, 16]);
+gs.createFromFile("game.txt");
+
 for (i = 0; i < 50; i += 1) {
   console.log(i + gs.setOfTiles.tileSet[i].openingTable);
 }
