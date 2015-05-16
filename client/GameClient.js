@@ -2,19 +2,6 @@
 /*globals
   $, chrome, document, DataView, TextEncoder, TextDecoder
 */
-var VALID_PLAY_TINT = '#696969',
-  BOARD_WIDTH = 9,
-  _canvas,
-  _stage,
-  _img,
-  _pieceWidth,
-  _pieceHeight,
-  _boardWidth,
-  _boardHeight,
-  _currentPiece,
-  _previousLoc,
-  _mouse;
-
 
 var socks = chrome.sockets.tcp,
   socketId = '',
@@ -37,64 +24,76 @@ var socks = chrome.sockets.tcp,
     return decoder.decode(dataView);
   };
 
-function setCanvas() {
-  "use strict";
-
-  _canvas = document.getElementById('board');
-  _stage = _canvas.getContext('2d');
-  _canvas.width = _boardWidth;
-  _canvas.height = _boardHeight;
-  _canvas.style.border = "1px solid black";
+function populateGameBoard(container, data) {
+    $(".CSSTableGenerator").remove();
+    var table = $("<table/>").addClass('CSSTableGenerator'), row, i, j;
+    for (i = 0; i < 7; i += 1) {
+      row = $("<tr/>");
+      for (j = 0; j < 7; j += 1) {
+        row.append($("<td/>")).append(data[j + (7 * i)]);
+      }
+      table.append(row);
+    }
+    return container.append(table);
 }
 
-function buildTable() {
-  "use strict";
-
-  var i,
-    piece,
-    xPos = 0,
-    yPos = 0;
-
-  for (i = 0; i < BOARD_WIDTH * BOARD_WIDTH; i += 1) {
-    piece = document.createElement('img');
-    if (xPos === 0 || yPos === 0 || xPos / _pieceWidth === BOARD_WIDTH - 1 || yPos / _pieceHeight === BOARD_WIDTH - 1) {
-      piece.src = "bkgrd.png";
-    } else {
-      piece.src = "angle-d-l.png";
-    }
-    _stage.drawImage(piece, xPos, yPos, _pieceWidth, _pieceHeight);
-    _stage.strokeRect(xPos, yPos, _pieceWidth, _pieceHeight);
-    xPos += _pieceWidth;
-    if (xPos >= _boardWidth) {
-      xPos = 0;
-      yPos += _pieceHeight;
-    }
+function generateTile(openingTable, tokId) {
+  var tileImg, tokImg;
+  switch (openingTable.join()) {
+    // The angle tiles
+    case "true,true,false,false": tileImg = "1100.png"; break;
+    case "false,true,true,false": tileImg = "0110.png"; break;
+    case "false,false,true,true": tileImg = "0011.png"; break;
+    case "true,false,false,true": tileImg = "1001.png"; break;
+    // The tee tiles
+    case "false,true,true,true": tileImg = "0111.png"; break;
+    case "true,false,true,true": tileImg = "1011.png"; break;
+    case "true,true,false,true": tileImg = "1101.png"; break;
+    case "true,true,true,false": tileImg = "1110.png"; break;
+    // The straight tiles
+    case "true,false,true,false": tileImg = "1010.png"; break;
+    case "false,true,false,true": tileImg = "0101.png"; break;
+    default: console.log("Could not find case for given openingTable " + openingTable);
   }
-}
 
-function initBoard() {
-  "use strict";
-
-  _mouse = {x: 0, y: 0};
-  _stage.drawImage(_img, 0, 0, _boardWidth, _boardHeight, 0, 0, _boardWidth, _boardHeight);
-  buildTable();
-}
-
-function onImage(e) {
-  "use strict";
-
-  log(e);
-  _pieceWidth = Math.floor(_img.width / BOARD_WIDTH);
-  _pieceHeight = Math.floor(_img.height / BOARD_WIDTH);
-  _boardWidth = _pieceWidth * BOARD_WIDTH;
-  _boardHeight = _pieceHeight * BOARD_WIDTH;
-  setCanvas();
-  initBoard();
+  switch (tokId) {
+    case -1: break;
+    case 0: break;
+    case 1: tokImg = "dragon.png"; break;
+    case 2: tokImg = "ring.png"; break;
+    case 3: tokImg = "owl.png"; break;
+    case 4: tokImg = "spider.png"; break;
+    case 5: tokImg = "sword.png"; break;
+    case 6: tokImg = "money_bag.png"; break;
+    case 7: tokImg = "tome.png"; break;
+    case 8: tokImg = "candlestick.png"; break;
+    case 9: tokImg = "map.png"; break;
+    case 10: tokImg = "helmet.png"; break;
+    case 11: tokImg = "bat.png"; break;
+    case 12: tokImg = "princess.png"; break;
+    case 13: tokImg = "keys.png"; break;
+    case 14: tokImg = "hobbit.png"; break;
+    case 15: tokImg = "chest.png"; break;
+    case 16: tokImg = "skull.png"; break;
+    case 17: tokImg = "beetle.png"; break;
+    case 18: tokImg = "crown.png"; break;
+    case 19: tokImg = "rat.png"; break;
+    case 20: tokImg = "emerald.png"; break;
+    case 21: tokImg = "moth.png"; break;
+    case 22: tokImg = "genie.png"; break;
+    case 23: tokImg = "ghost.png"; break;
+    case 24: tokImg = "newt.png"; break;
+    default: console.log("Could not find case for given tokId" + tokId);
+  }
 }
 
 $(document).ready(function () {
   "use strict";
-
+  var data = [], i, gameBoard;
+  for (i = 0; i < 49; i += 1) {
+    data.push('<img src="angle-d-l.png">');
+  }
+  var gameBoard = populateGameBoard($(document.body), data);
   socks.onReceive.addListener(function (info) {
     log("Received: " + ab2str(info.data));
   });
@@ -102,10 +101,6 @@ $(document).ready(function () {
   socks.onReceiveError.addListener(function (info) {
     log("ReceiveError " + JSON.stringify(info));
   });
-
-  _img = document.createElement('img');
-  _img.addEventListener('load', onImage, false);
-  _img.src = "bkgrd.png";
 
   $('#connect').click(function () {
     var server = $('#server').val();
