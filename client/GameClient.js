@@ -56,7 +56,7 @@ function buildTable() {
     yPos = 0;
 
   for (i = 0; i < BOARD_WIDTH * BOARD_WIDTH; i += 1) {
-    piece = new Image();
+    piece = document.createElement('img');
     if (xPos === 0 || yPos === 0 || xPos / _pieceWidth === BOARD_WIDTH-1 || yPos / _pieceHeight === BOARD_WIDTH-1) {
       piece.src = "bkgrd.png";
     }
@@ -103,7 +103,7 @@ $(document).ready(function () {
     log("ReceiveError " + JSON.stringify(info));
   });
 
-  _img = new Image();
+  _img = document.createElement('img');
   _img.addEventListener('load',onImage,false);
   _img.src = "bkgrd.png";
 
