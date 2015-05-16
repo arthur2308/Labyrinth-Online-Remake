@@ -99,6 +99,63 @@ gs.movePlayer = function (playerIndex, direction) {
   }
 };
 
+
+gs.slide = function (Index, direction) {
+  "use strict";
+  var i;
+  if (direction === 'u') {
+    this.setOfTiles.SlideUp(Index);
+    for (i = 0; i < 3; i += 1) {
+      if (this.players[i].boardLocation % 7 === Index) { // if same row or column
+        if (this.players[i].boardLocation <= 6) {
+          this.players[i].boardLocation += 42;
+        } else {
+          this.players[i].boardLocation -= 7;
+        }
+      }
+    }
+  }
+
+  if (direction === 'd') {
+    this.setOfTiles.SlideDown(Index);
+    for (i = 0; i < 3; i += 1) {
+      if (this.players[i].boardLocation % 7 === Index) {
+        if (this.players[i].boardLocation >= 42) {
+          this.players[i].boardLocation -= 42;
+        } else {
+          this.players[i].boardLocation += 7;
+        }
+      }
+    }
+  }
+
+  if (direction === 'l') {
+    this.setOfTiles.SlideLeft(Index);
+    for (i = 0; i < 3; i += 1) {
+      if (this.players[i].boardLocation % 7 === Index) {
+        if (this.players[i].boardLocation % 7 === 0) {
+          this.players[i].boardLocation += 6;
+        } else {
+          this.players[i].boardLocation -= 1;
+        }
+      }
+    }
+  }
+
+  if (direction === 'r') {
+    this.setOfTiles.SlideRight(Index);
+    for (i = 0; i < 3; i += 1) {
+      if (this.players[i].boardLocation % 7 === Index) {
+        if (this.players[i].boardLocation % 7 === 6) {
+          this.players[i].boardLocation -= 6;
+        } else {
+          this.players[i].boardLocation += 1;
+        }
+      }
+    }
+  }
+};
+
 // Need to create a function to detect if a player has landed on a tile
 
 gs.marshal = function () {
