@@ -57,10 +57,9 @@ function buildTable() {
 
   for (i = 0; i < BOARD_WIDTH * BOARD_WIDTH; i += 1) {
     piece = document.createElement('img');
-    if (xPos === 0 || yPos === 0 || xPos / _pieceWidth === BOARD_WIDTH-1 || yPos / _pieceHeight === BOARD_WIDTH-1) {
+    if (xPos === 0 || yPos === 0 || xPos / _pieceWidth === BOARD_WIDTH - 1 || yPos / _pieceHeight === BOARD_WIDTH - 1) {
       piece.src = "bkgrd.png";
-    }
-    else {
+    } else {
       piece.src = "angle-d-l.png";
     }
     _stage.drawImage(piece, xPos, yPos, _pieceWidth, _pieceHeight);
@@ -76,7 +75,7 @@ function buildTable() {
 function initBoard() {
   "use strict";
 
-  _mouse = {x:0,y:0};
+  _mouse = {x: 0, y: 0};
   _stage.drawImage(_img, 0, 0, _boardWidth, _boardHeight, 0, 0, _boardWidth, _boardHeight);
   buildTable();
 }
@@ -84,10 +83,11 @@ function initBoard() {
 function onImage(e) {
   "use strict";
 
+  log(e);
   _pieceWidth = Math.floor(_img.width / BOARD_WIDTH);
   _pieceHeight = Math.floor(_img.height / BOARD_WIDTH);
   _boardWidth = _pieceWidth * BOARD_WIDTH;
-  _boardHeight = _pieceHeight * BOARD_HEIGHT;
+  _boardHeight = _pieceHeight * BOARD_WIDTH;
   setCanvas();
   initBoard();
 }
@@ -104,7 +104,7 @@ $(document).ready(function () {
   });
 
   _img = document.createElement('img');
-  _img.addEventListener('load',onImage,false);
+  _img.addEventListener('load', onImage, false);
   _img.src = "bkgrd.png";
 
   $('#connect').click(function () {
