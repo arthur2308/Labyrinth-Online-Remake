@@ -8,8 +8,8 @@ chrome.app.runtime.onLaunched.addListener(function () {
 
   chrome.app.window.create('GameClient.html', {
     'bounds': {
-      'width': 400,
-      'height': 500
+      'width': 1400,
+      'height': 1500
     }
   });
 });
