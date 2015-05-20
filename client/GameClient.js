@@ -245,25 +245,51 @@ $(document).ready(function () {
 
   $('#s_up').click(function() {
     // get index to slide tile into
-    var index = $('#slide_index').val();
+    var index = parseInt($('#slide_index').val()), i, tile;
     // slide the tile
     gs.slide(index, 'u');
-    // reset the 
     $('#tile_img').remove();
-    $('#tile_preview').append(generateTile(gs.setOfTiles.tileSet[49].openingTable, tile.tokID, -1, "tile_img"));
+    tile = gs.setOfTiles.tileSet[49];
+    $('#tile_preview').append(generateTile(tile.openingTable, tile.tokID, -1, "tile_img"));
     populateGameBoard($("#game_board"));
-    log("Slid up at index " + index);
+    console.log("Slid up at index " + index);
   });
 
   $('#s_right').click(function() {
-
+    // get index to slide tile into
+    var index = parseInt($('#slide_index').val()), i, tile;
+    // slide the tile
+    gs.slide(index, 'r');
+    $('#tile_img').remove();
+    tile = gs.setOfTiles.tileSet[49];
+    $('#tile_preview').append(generateTile(tile.openingTable, tile.tokID, -1, "tile_img"));
+    populateGameBoard($("#game_board"));
+    console.log("Slid right at index " + index);
   });
 
   $('#s_down').click(function() {
+    // get index to slide tile into
+    var index = parseInt($('#slide_index').val()), i, tile;
+    // slide the tile
+    gs.slide(index, 'd');
+    $('#tile_img').remove();
+    tile = gs.setOfTiles.tileSet[49];
+    $('#tile_preview').append(generateTile(tile.openingTable, tile.tokID, -1, "tile_img"));
+    populateGameBoard($("#game_board"));
+    console.log("Slid down at index " + index);
    
   });
 
   $('#s_left').click(function() {
+    // get index to slide tile into
+    var index = parseInt($('#slide_index').val()), i, tile;
+    // slide the tile
+    gs.slide(index, 'l');
+    $('#tile_img').remove();
+    tile = gs.setOfTiles.tileSet[49];
+    $('#tile_preview').append(generateTile(tile.openingTable, tile.tokID, -1, "tile_img"));
+    populateGameBoard($("#game_board"));
+    console.log("Slid left at index " + index);
 
   });
 
