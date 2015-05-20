@@ -104,7 +104,7 @@ gs.slide = function (Index, direction) {
   "use strict";
   var i;
   if (direction === 'u') {
-    this.setOfTiles.SlideUp(Index);
+    this.setOfTiles.slideUp(Index);
     for (i = 0; i < 3; i += 1) {
       if (this.players[i].boardLocation % 7 === Index) { // if same row or column
         if (this.players[i].boardLocation <= 6) {
@@ -117,7 +117,7 @@ gs.slide = function (Index, direction) {
   }
 
   if (direction === 'd') {
-    this.setOfTiles.SlideDown(Index);
+    this.setOfTiles.slideDown(Index);
     for (i = 0; i < 3; i += 1) {
       if (this.players[i].boardLocation % 7 === Index) {
         if (this.players[i].boardLocation >= 42) {
@@ -130,7 +130,7 @@ gs.slide = function (Index, direction) {
   }
 
   if (direction === 'l') {
-    this.setOfTiles.SlideLeft(Index);
+    this.setOfTiles.slideLeft(Index);
     for (i = 0; i < 3; i += 1) {
       if (this.players[i].boardLocation % 7 === Index) {
         if (this.players[i].boardLocation % 7 === 0) {
@@ -143,7 +143,7 @@ gs.slide = function (Index, direction) {
   }
 
   if (direction === 'r') {
-    this.setOfTiles.SlideRight(Index);
+    this.setOfTiles.slideRight(Index);
     for (i = 0; i < 3; i += 1) {
       if (this.players[i].boardLocation % 7 === Index) {
         if (this.players[i].boardLocation % 7 === 6) {

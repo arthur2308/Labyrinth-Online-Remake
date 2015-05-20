@@ -1,9 +1,11 @@
 <!doctype html>
 <html>
   <head>
-    <title>minimum sample</title>
+    <title>Labyrinth Online</title>
     <script src="jquery-1.11.2.min.js"></script>
     <script src="bundle.js"></script>
+    <style>
+    </style>
   </head>
   <body>
     <strong>Server:</strong><br>
@@ -13,7 +15,29 @@
     <strong>Message:</strong><br>
     <input id="sendMessage" size="35" value="We Will Rock You"><br>
     <button id="send">Send</button>
-    <button id="rotate">Rotate Tile</button>    
+    <table id="control_grid">
+      <tr>
+        <td class="control_td"><div class="grid_divs"><button id="fin">Finish Turn</button></div></td>
+        <td class="control_td"><div class="grid_divs"></div></td> 
+        <td class="control_td"><div class="grid_divs"><div id="tile_preview"></div></div></td>
+        <td class="control_td"><div class="grid_divs"><button id="s_up">Slide Up</button></div></td>
+        <td class="control_td"><div class="grid_divs"><button id="s_right">Slide Right</button></div></td>
+      </tr>
+      <tr>
+        <td class="control_td"><div class="grid_divs"><button id="rot_tile">Rotate Tile</button></div></td>
+        <td class="control_td"><div class="grid_divs"></div><button id="m_up">Move Up</button></td> 
+        <td class="control_td"><div class="grid_divs">Insert Tile at<br><input id="slide_index" size="3" value="0"></div></td>
+      </tr>
+      <tr>
+        <td class="control_td"><div class="grid_divs"><button id="m_left">Move Left</button></div></td>
+        <td class="control_td"><div class="grid_divs"><button id="m_down">Move Down</button></div></td>
+        <td class="control_td"><div class="grid_divs"><button id="m_right">Move Right</button></div></td>
+        <td class="control_td"><div class="grid_divs"><button id="s_down">Slide Down</button></div></td>
+        <td class="control_td"><div class="grid_divs"><button id="s_left">Slide Left</button></div></td>
+      </tr>
+    </table>
+    <div id="game_board">
+    </div>    
     <div id="console">
     </div>
   </body>

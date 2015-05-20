@@ -105,7 +105,7 @@ gs.slide = function (Index, direction) {
   "use strict";
   var i;
   if (direction === 'u') {
-    this.setOfTiles.SlideUp(Index);
+    this.setOfTiles.slideUp(Index);
     for (i = 0; i < 3; i += 1) {
       if (this.players[i].boardLocation % 7 === Index) { // if same row or column
         if (this.players[i].boardLocation <= 6) {
@@ -118,7 +118,7 @@ gs.slide = function (Index, direction) {
   }
 
   if (direction === 'd') {
-    this.setOfTiles.SlideDown(Index);
+    this.setOfTiles.slideDown(Index);
     for (i = 0; i < 3; i += 1) {
       if (this.players[i].boardLocation % 7 === Index) {
         if (this.players[i].boardLocation >= 42) {
@@ -131,7 +131,7 @@ gs.slide = function (Index, direction) {
   }
 
   if (direction === 'l') {
-    this.setOfTiles.SlideLeft(Index);
+    this.setOfTiles.slideLeft(Index);
     for (i = 0; i < 3; i += 1) {
       if (this.players[i].boardLocation % 7 === Index) {
         if (this.players[i].boardLocation % 7 === 0) {
@@ -144,7 +144,7 @@ gs.slide = function (Index, direction) {
   }
 
   if (direction === 'r') {
-    this.setOfTiles.SlideRight(Index);
+    this.setOfTiles.slideRight(Index);
     for (i = 0; i < 3; i += 1) {
       if (this.players[i].boardLocation % 7 === Index) {
         if (this.players[i].boardLocation % 7 === 6) {
@@ -621,7 +621,7 @@ var socks = chrome.sockets.tcp, socketId, GameState = require("../gamestate.js")
   };
 
 // Generates a single tile. tokId and playerId are -1 if not present
-function generateTile(openingTable, tokId, playerIndex) {
+function generateTile(openingTable, tokId, playerIndex, div_id) {
   "use strict";
   var tileImg, tokImg, playerImg, elementString;
   switch (openingTable.join()) {
@@ -745,9 +745,30 @@ function generateTile(openingTable, tokId, playerIndex) {
     console.log("Could not find case for given tokId" + tokId);
   }
 
-  elementString = '<div style="position: relative; left: 0; top: 0;"><img src="' + tileImg;
+  switch (playerIndex) {
+  case 0:
+    playerImg = "player_dot_0.png";
+    break;
+  case 1:
+    playerImg = "player_dot_1.png";
+    break;
+  case 2:
+    playerImg = "player_dot_2.png";
+    break;
+  case 3:
+    playerImg = "player_dot_3.png";
+    break;
+  default:
+    console.log("Could not find match for playerIndex " + playerIndex);
+  }
+
+  elementString = '<div id="' + div_id + '" style="position: relative; left: 0; top: 0;"><img src="' + tileImg;
   elementString += '" style="position: relative; top: 0; left: 0;"/><img src="' + tokImg;
-  elementString += '" style="position: absolute; top: 10px; left: 10px;"/></div>';
+  elementString += '" style="position: absolute; top: 10px; left: 10px;"/>';
+  if (playerIndex !== -1) {
+    elementString += '<img src="' + playerImg + '" style="position: absolute; top: 10px; left: 10px;"/></div>';
+  }
+  
   return elementString;
 }
 
@@ -769,7 +790,7 @@ function populateGameBoard(container) {
           break;
         }
       }
-      row.append($("<td/>")).append(generateTile(openingTable, tokId, playerIndex));
+      row.append($("<td/>")).append(generateTile(openingTable, tokId, playerIndex, "tile"));
     }
     table.append(row);
   }
@@ -780,7 +801,7 @@ function populateGameBoard(container) {
 $(document).ready(function () {
   "use strict";
   gs.createNewGame([11, 12, 13]); // Test
-  populateGameBoard($(document.body));
+  populateGameBoard($("#game_board"));
   socks.onReceive.addListener(function (info) {
     log("Received: " + ab2str(info.data));
   });
@@ -789,9 +810,66 @@ $(document).ready(function () {
     log("ReceiveError " + JSON.stringify(info));
   });
 
+  $('#m_up').click(function() {
+    gs.movePlayer(0, 'u');
+    populateGameBoard($("#game_board"));
+  });
+
+  $('#m_down').click(function() {
+    gs.movePlayer(0, 'd');
+    populateGameBoard($("#game_board"));
+  });
+
+  $('#m_left').click(function() {
+    gs.movePlayer(0, 'l');
+    populateGameBoard($("#game_board"));
+  });
+
+  $('#m_right').click(function() {
+    gs.movePlayer(0, 'r');
+    populateGameBoard($("#game_board"));
+  });
+
+  $('#rot_tile').click(function() {
+    var tile;
+    gs.setOfTiles.tileSet[49].rotate(1);
+    tile = gs.setOfTiles.tileSet[49];
+    console.log("proof of life!: " + tile.openingTable);
+    $('#tile_img').remove();
+    $('#tile_preview').append(generateTile(tile.openingTable, tile.tokID, -1, "tile_img"));
+  });
+
+  $('#s_up').click(function() {
+    // get index to slide tile into
+    var index = $('#slide_index').val();
+    // slide the tile
+    gs.slide(index, 'u');
+    // reset the 
+    $('#tile_img').remove();
+    $('#tile_preview').append(generateTile(gs.setOfTiles.tileSet[49].openingTable, tile.tokID, -1, "tile_img"));
+    populateGameBoard($("#game_board"));
+    log("Slid up at index " + index);
+  });
+
+  $('#s_right').click(function() {
+
+  });
+
+  $('#s_down').click(function() {
+   
+  });
+
+  $('#s_left').click(function() {
+
+  });
+
+  $('#fin').click(function() {
+
+  });
+
+
   $('#connect').click(function () {
     var server = $('#server').val();
-
     if (socketId !== '') {
       log('Already connected!');
       return;
@@ -800,6 +878,7 @@ $(document).ready(function () {
     socks.create({}, function (createInfo) {
       socketId = createInfo.socketId;
       log('socketId = ' + socketId);
+
       socks.connect(socketId, server, 8421, function (resultCode) {
         if (resultCode >= 0) {
           log('Connect succeeded: ' + resultCode);
@@ -809,6 +888,7 @@ $(document).ready(function () {
           log('Connect failed: ' + resultCode);
         }
       });
+
     });
   });
 
