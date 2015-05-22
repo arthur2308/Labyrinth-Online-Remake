@@ -1,41 +1,43 @@
 <!doctype html>
 <html>
   <head>
+    <link rel="stylesheet" type="text/css" href="pagestyle.css">
     <title>Labyrinth Online</title>
     <script src="jquery-1.11.2.min.js"></script>
     <script src="bundle.js"></script>
     <style>
-    </style>
+  </style>
   </head>
   <body>
     <strong>Server:</strong><br>
     <input id="server" size="35" value="127.0.0.1"><br>
     <button id="connect">Connect</button>
     <button id="disconnect">Disconnect</button><br>
-    <strong>Message:</strong><br>
-    <input id="sendMessage" size="35" value="We Will Rock You"><br>
-    <button id="send">Send</button>
+    <input id="sendMessage" class="grid_divs" size="20" value="Enter Message"><br>
+    <button id="send" class="grid_divs_hoverable">Send</button>
     <table id="control_grid">
       <tr>
-        <td class="control_td"><div class="grid_divs"><button id="fin">Finish Turn</button></div></td>
-        <td class="control_td"><div class="grid_divs"></div></td> 
-        <td class="control_td"><div class="grid_divs"><div id="tile_preview"></div></div></td>
-        <td class="control_td"><div class="grid_divs"><button id="s_up">Slide Up</button></div></td>
-        <td class="control_td"><div class="grid_divs"><button id="s_right">Slide Right</button></div></td>
+        <td class="control_td"><div id="fin" class="grid_divs_hoverable">Finish Turn</div></td>
+        <td class="control_td"><div class="empty_divs"></div></td> 
+        <td class="control_td"><div class="tile_prev"><div id="tile_preview"></div></div></td>
+        <td class="control_td"><div id="s_up" class="grid_divs_hoverable">Slide Up</div></td>
+        <td class="control_td"><div id="s_right" class="grid_divs_hoverable">Slide Right</div></td>
+        <td class="control_td"><div id="pickup" class="grid_divs_hoverable">Pick Up Token</div></td>
       </tr>
       <tr>
-        <td class="control_td"><div class="grid_divs"><button id="rot_tile">Rotate Tile</button></div></td>
-        <td class="control_td"><div class="grid_divs"></div><button id="m_up">Move Up</button></td> 
-        <td class="control_td"><div class="grid_divs">Insert Tile at<br><input id="slide_index" size="3" value="0"></div></td>
+        <td class="control_td"><div id="rot_tile" class="grid_divs_hoverable">Rotate</div></td>
+        <td class="control_td"><div id="m_up" class="grid_divs_hoverable">Move Up</div></td>
+        <td class="control_td"><div id="insert" class="grid_divs">Insert at<br><input id="slide_index" size="3" value="0"></div></td>
       </tr>
       <tr>
-        <td class="control_td"><div class="grid_divs"><button id="m_left">Move Left</button></div></td>
-        <td class="control_td"><div class="grid_divs"><button id="m_down">Move Down</button></div></td>
-        <td class="control_td"><div class="grid_divs"><button id="m_right">Move Right</button></div></td>
-        <td class="control_td"><div class="grid_divs"><button id="s_down">Slide Down</button></div></td>
-        <td class="control_td"><div class="grid_divs"><button id="s_left">Slide Left</button></div></td>
+        <td class="control_td"><div id="m_left" class="grid_divs_hoverable">Move Left</div></td>
+        <td class="control_td"><div id="m_down" class="grid_divs_hoverable">Move Down</div></td>
+        <td class="control_td"><div id="m_right" class="grid_divs_hoverable">Move Right</div></td>
+        <td class="control_td"><div id="s_down" class="grid_divs_hoverable">Slide Down</div></td>
+        <td class="control_td"><div id="s_left" class="grid_divs_hoverable">Slide Left</div></td>
       </tr>
     </table>
+    <div id="drawn_toks"></div>
     <div id="game_board">
     </div>    
     <div id="console">

@@ -150,6 +150,8 @@ function generateTile(openingTable, tokId, playerIndex, div_id) {
   }
 
   switch (playerIndex) {
+  case -1: 
+    break;
   case 0:
     playerImg = "player_dot_0.png";
     break;
