@@ -66,7 +66,7 @@ gs.movePlayer = function (playerIndex, direction) {
         (this.setOfTiles.tileSet[tempPos - 1].openingTable[1] === false))) {
       return false;
     }
-    this.players[playerIndex].boardLocation += 1;
+    this.players[playerIndex].boardLocation = tempPos;
     return true;
   }
 
@@ -90,16 +90,19 @@ gs.movePlayer = function (playerIndex, direction) {
     tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation - 1;
     console.log("tempPos: " + tempPos);
-    if ((tempPos % 7 === 0) || (this.setOfTiles.tileSet[tempPos].openingtable[1] === false) ||
-        (this.setOfTiles.tileSet[tempPos + 1].openingTable[3] === false)) {
+    if ((tempPos % 7 === 6) || ((this.setOfTiles.tileSet[tempPos].openingTable[1] === false) ||
+        (this.setOfTiles.tileSet[tempPos + 1].openingTable[3] === false))) {
       return false;
     }
-    this.players[playerIndex].boardLocation -= 1;
+    this.players[playerIndex].boardLocation = tempPos;
     return true;
   }
 };
 
-
+// SLIDE---------------------------------------------------------------------------
+// Slides the player with the sliding row/column
+// Calls setOfTiles's slide finction to slide the pieces
+// Changes position of the player accordingly
 gs.slide = function (Index, direction) {
   "use strict";
   var i;
@@ -132,7 +135,7 @@ gs.slide = function (Index, direction) {
   if (direction === 'l') {
     this.setOfTiles.slideLeft(Index);
     for (i = 0; i < 3; i += 1) {
-      if (this.players[i].boardLocation % 7 === Index) {
+      if (parseInt(this.players[i].boardLocation / 7, 10) === Index) {
         if (this.players[i].boardLocation % 7 === 0) {
           this.players[i].boardLocation += 6;
         } else {
@@ -145,7 +148,7 @@ gs.slide = function (Index, direction) {
   if (direction === 'r') {
     this.setOfTiles.slideRight(Index);
     for (i = 0; i < 3; i += 1) {
-      if (this.players[i].boardLocation % 7 === Index) {
+      if (parseInt(this.players[i].boardLocation / 7, 10) === Index) {
         if (this.players[i].boardLocation % 7 === 6) {
           this.players[i].boardLocation -= 6;
         } else {
@@ -154,6 +157,19 @@ gs.slide = function (Index, direction) {
       }
     }
   }
+};
+
+gs.pickToken = function () {
+  "use strict";
+  var tempPos = this.players[this.activePlayerNum].boardLocation, i;
+  for (i = 0; i < 3; i += 1) {
+    if (this.setOfTiles.tileSet[tempPos].tokID === this.drawnToks[i]) {             // -1 default
+      this.players[this.activePlayerNum].collectedTokens.push(this.drawnToks[i]);   // add the token to the player 
+      this.drawnToks[i] = this.setOfToks.drawToken();                               // replace the token in drawnToks
+      return true;
+    }
+  }
+  return false;
 };
 
 // Need to create a function to detect if a player has landed on a tile
