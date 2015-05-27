@@ -28,6 +28,7 @@ gs.createNewGame = function (playerIds) {
   "use strict";
 
   var i, corners = [0, 6, 42, 48];
+  this.players = [];
   for (i = 0; i < playerIds.length; i++) {
     this.players[i] = new Player(playerIds[i], corners[i], []);
   }                              // Initialize each player w/ ID
@@ -41,58 +42,50 @@ gs.createNewGame = function (playerIds) {
 // Move a player up, right, down, or left. 
 gs.movePlayer = function (playerIndex, direction) {
   "use strict";
-  var tempPos;
+  var tempPos, isOutOfBounds, isOpenCurrentTile, isOpenOtherTile;
 
   if (direction === 'u') {
     // Move player up 1 tile
     tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation - 7;
     console.log("tempPos: " + tempPos);
-    if ((tempPos < 0 || tempPos > 48) || (((this.setOfTiles.tileSet[tempPos].openingTable[2]=="true") === false) || ((this.setOfTiles.tileSet[tempPos + 7].openingTable[0] == "true") === false))) {
-      return false;
-    }
-    this.players[playerIndex].boardLocation = tempPos;
-    return true;
-  }
-
-  if (direction === 'r') {
+    isOutOfBounds = (tempPos < 0 || tempPos > 48);
+    isOpenCurrentTile = this.setOfTiles.tileSet[tempPos].openingTable[2] === "true";
+    isOpenOtherTile = this.setOfTiles.tileSet[tempPos + 7].openingTable[0] === "true";
+  } else if (direction === 'r') {
     // Move player right 1 tile
     // console.log("tempPos: " + tempPos); 
     tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation + 1;
     console.log("tempPos: " + tempPos);
-    if ((tempPos % 7 === 0) || (((this.setOfTiles.tileSet[tempPos].openingTable[3] == "true") === false) || ((this.setOfTiles.tileSet[tempPos - 1].openingTable[1] == "true") === false))) {
-      return false;
-    }
-    this.players[playerIndex].boardLocation = tempPos;
-    return true;
-  }
-
-  if (direction === 'd') {
+    isOutOfBounds = tempPos % 7 === 0;
+    isOpenCurrentTile = this.setOfTiles.tileSet[tempPos].openingTable[3] === "true";
+    isOpenOtherTile = this.setOfTiles.tileSet[tempPos - 1].openingTable[1] === "true";
+  } else if (direction === 'd') {
     // Move player down 1 tile
     //console.log("tempPos: " + tempPos); 
     tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation + 7;
     console.log("tempPos: " + tempPos);
-    if ((tempPos < 0 || tempPos > 48) || (((this.setOfTiles.tileSet[tempPos].openingTable[0] == "true") === false) || ((this.setOfTiles.tileSet[tempPos - 7].openingTable[2] == "true") === false))) {
-      return false;
-    }
-    this.players[playerIndex].boardLocation = tempPos;
-    return true;
-  }
-
-  if (direction === 'l') {
+    isOutOfBounds = (tempPos < 0 || tempPos > 48);
+    isOpenCurrentTile = this.setOfTiles.tileSet[tempPos].openingTable[0] === "true";
+    isOpenOtherTile = this.setOfTiles.tileSet[tempPos - 7].openingTable[2] === "true";
+  } else if (direction === 'l') {
     // Move player left 1 tile
     // console.log("tempPos: " + tempPos); 
     tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation - 1;
     console.log("tempPos: " + tempPos);
-    if ((tempPos % 7 === 6) || (((this.setOfTiles.tileSet[tempPos].openingTable[1] == "true") === false) || ((this.setOfTiles.tileSet[tempPos + 1].openingTable[3] == "true") === false))) {
-      return false;
-    }
-    this.players[playerIndex].boardLocation = tempPos;
-    return true;
+    isOutOfBounds = tempPos % 7 === 6;
+    isOpenCurrentTile = this.setOfTiles.tileSet[tempPos].openingTable[1] === "true";
+    isOpenOtherTile = this.setOfTiles.tileSet[tempPos + 1].openingTable[3] === "true";
   }
+
+  if (isOutOfBounds || !isOpenCurrentTile || !isOpenOtherTile) {
+    return false;
+  }
+  this.players[playerIndex].boardLocation = tempPos;
+  return true;
 };
 
 // SLIDE---------------------------------------------------------------------------
@@ -162,14 +155,14 @@ gs.pickToken = function () {
     // Are we on a tile we can pick up?
     if (this.setOfTiles.tileSet[tempPos].tokID === this.drawnToks[i]) {
       // If so, check this tile against the tiles we've already collected, to ensure to duplicates exist
-      for (j = 0; j < this.players[this.activePlayerNum].collectedTokens.length; j += 1){
+      for (j = 0; j < this.players[this.activePlayerNum].collectedTokens.length; j += 1) {
         if (this.players[this.activePlayerNum].collectedTokens[j] === this.setOfTiles.tileSet[tempPos].tokID) {
           console.log("Already picked up this token.");
           return false;
         }
       }
       this.players[this.activePlayerNum].collectedTokens.push(this.drawnToks[i]);
-      this.drawnToks[i] = this.setOfToks.drawToken();   
+      this.drawnToks[i] = this.setOfToks.drawToken();
       return true;
     }
   }
@@ -177,11 +170,13 @@ gs.pickToken = function () {
 };
 
 gs.checkForWinner = function () {
-  if (this.players[this.activePlayerNum].collectedToks >= 8) {
+  "use strict";
+  console.log("**Test, checkForWinner** activePlayerNum = " + this.activePlayerNum + " players.length = " + this.players.length + " this.players[this.activePlayerNum].collectedToks.length = " + this.players[this.activePlayerNum].collectedTokens.length);
+  if (this.players[this.activePlayerNum].collectedTokens.length >= 8) {
     this.winnerId = this.activePlayerNum;
     console.log(this.player[this.winnerId] + " has won the game!");
   }
-}
+};
 
 // Need to create a function to detect if a player has landed on a tile
 
