@@ -151,7 +151,6 @@ left:440px;
   position:absolute;
   top:810px;
   left:85px;
-
 } 
 
 #send {
@@ -163,4 +162,18 @@ left:440px;
   position:absolute;
   top:760px;
   left:700px;
+}
+
+#drawn_toks
+{
+  position:absolute;
+  left:700px;
+  top:100px;
+}
+
+#scoreboard
+{
+  position:absolute;
+  left:690px;
+  top:420px;
 }
