@@ -1,7 +1,7 @@
 /*jslint indent: 2, node: true, nomen: true */
 var GameState = require('../gamestate.js'), 
 socks = [],
-PLAYERS = 2,
+PLAYERS = 1,
 nextPlayer = 0,
 i,
 PASSWORD = "FABIO",
