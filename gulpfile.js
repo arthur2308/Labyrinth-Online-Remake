@@ -6,7 +6,8 @@ var gulp = require('gulp'),
     '*.js',
     'client/*.js',
     'server/*.js',
-    '!**/*.min.js'
+    '!**/*.min.js',
+    '!bundle.js'
   ];
 
 gulp.task('jslint', function () {

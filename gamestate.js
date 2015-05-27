@@ -48,8 +48,7 @@ gs.movePlayer = function (playerIndex, direction) {
     tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation - 7;
     console.log("tempPos: " + tempPos);
-    if ((tempPos < 0 || tempPos > 48) || ((this.setOfTiles.tileSet[tempPos].openingTable[2] === false) ||
-      (this.setOfTiles.tileSet[tempPos + 7].openingTable[0] === false))) {
+    if ((tempPos < 0 || tempPos > 48) || (((this.setOfTiles.tileSet[tempPos].openingTable[2]=="true") === false) || ((this.setOfTiles.tileSet[tempPos + 7].openingTable[0] == "true") === false))) {
       return false;
     }
     this.players[playerIndex].boardLocation = tempPos;
@@ -62,8 +61,7 @@ gs.movePlayer = function (playerIndex, direction) {
     tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation + 1;
     console.log("tempPos: " + tempPos);
-    if ((tempPos % 7 === 0) || ((this.setOfTiles.tileSet[tempPos].openingTable[3] === false) ||
-        (this.setOfTiles.tileSet[tempPos - 1].openingTable[1] === false))) {
+    if ((tempPos % 7 === 0) || (((this.setOfTiles.tileSet[tempPos].openingTable[3] == "true") === false) || ((this.setOfTiles.tileSet[tempPos - 1].openingTable[1] == "true") === false))) {
       return false;
     }
     this.players[playerIndex].boardLocation = tempPos;
@@ -76,8 +74,7 @@ gs.movePlayer = function (playerIndex, direction) {
     tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation + 7;
     console.log("tempPos: " + tempPos);
-    if ((tempPos < 0 || tempPos > 48) || ((this.setOfTiles.tileSet[tempPos].openingTable[0] === false) ||
-      (this.setOfTiles.tileSet[tempPos - 7].openingTable[2] === false))) {
+    if ((tempPos < 0 || tempPos > 48) || (((this.setOfTiles.tileSet[tempPos].openingTable[0] == "true") === false) || ((this.setOfTiles.tileSet[tempPos - 7].openingTable[2] == "true") === false))) {
       return false;
     }
     this.players[playerIndex].boardLocation = tempPos;
@@ -90,8 +87,7 @@ gs.movePlayer = function (playerIndex, direction) {
     tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation - 1;
     console.log("tempPos: " + tempPos);
-    if ((tempPos % 7 === 6) || ((this.setOfTiles.tileSet[tempPos].openingTable[1] === false) ||
-        (this.setOfTiles.tileSet[tempPos + 1].openingTable[3] === false))) {
+    if ((tempPos % 7 === 6) || (((this.setOfTiles.tileSet[tempPos].openingTable[1] == "true") === false) || ((this.setOfTiles.tileSet[tempPos + 1].openingTable[3] == "true") === false))) {
       return false;
     }
     this.players[playerIndex].boardLocation = tempPos;
@@ -108,7 +104,7 @@ gs.slide = function (Index, direction) {
   var i;
   if (direction === 'u') {
     this.setOfTiles.slideUp(Index);
-    for (i = 0; i < 3; i += 1) {
+    for (i = 0; i < this.players.length; i += 1) {
       if (this.players[i].boardLocation % 7 === Index) { // if same row or column
         if (this.players[i].boardLocation <= 6) {
           this.players[i].boardLocation += 42;
@@ -121,7 +117,7 @@ gs.slide = function (Index, direction) {
 
   if (direction === 'd') {
     this.setOfTiles.slideDown(Index);
-    for (i = 0; i < 3; i += 1) {
+    for (i = 0; i < this.players.length; i += 1) {
       if (this.players[i].boardLocation % 7 === Index) {
         if (this.players[i].boardLocation >= 42) {
           this.players[i].boardLocation -= 42;
@@ -134,7 +130,7 @@ gs.slide = function (Index, direction) {
 
   if (direction === 'l') {
     this.setOfTiles.slideLeft(Index);
-    for (i = 0; i < 3; i += 1) {
+    for (i = 0; i < this.players.length; i += 1) {
       if (parseInt(this.players[i].boardLocation / 7, 10) === Index) {
         if (this.players[i].boardLocation % 7 === 0) {
           this.players[i].boardLocation += 6;
@@ -147,7 +143,7 @@ gs.slide = function (Index, direction) {
 
   if (direction === 'r') {
     this.setOfTiles.slideRight(Index);
-    for (i = 0; i < 3; i += 1) {
+    for (i = 0; i < this.players.length; i += 1) {
       if (parseInt(this.players[i].boardLocation / 7, 10) === Index) {
         if (this.players[i].boardLocation % 7 === 6) {
           this.players[i].boardLocation -= 6;
@@ -161,16 +157,31 @@ gs.slide = function (Index, direction) {
 
 gs.pickToken = function () {
   "use strict";
-  var tempPos = this.players[this.activePlayerNum].boardLocation, i;
+  var tempPos = this.players[this.activePlayerNum].boardLocation, i, j;
   for (i = 0; i < 3; i += 1) {
-    if (this.setOfTiles.tileSet[tempPos].tokID === this.drawnToks[i]) {             // -1 default
-      this.players[this.activePlayerNum].collectedTokens.push(this.drawnToks[i]);   // add the token to the player 
-      this.drawnToks[i] = this.setOfToks.drawToken();                               // replace the token in drawnToks
+    // Are we on a tile we can pick up?
+    if (this.setOfTiles.tileSet[tempPos].tokID === this.drawnToks[i]) {
+      // If so, check this tile against the tiles we've already collected, to ensure to duplicates exist
+      for (j = 0; j < this.players[this.activePlayerNum].collectedTokens.length; j += 1){
+        if (this.players[this.activePlayerNum].collectedTokens[j] === this.setOfTiles.tileSet[tempPos].tokID) {
+          console.log("Already picked up this token.");
+          return false;
+        }
+      }
+      this.players[this.activePlayerNum].collectedTokens.push(this.drawnToks[i]);
+      this.drawnToks[i] = this.setOfToks.drawToken();   
       return true;
     }
   }
   return false;
 };
+
+gs.checkForWinner = function () {
+  if (this.players[this.activePlayerNum].collectedToks >= 8) {
+    this.winnerId = this.activePlayerNum;
+    console.log(this.player[this.winnerId] + " has won the game!");
+  }
+}
 
 // Need to create a function to detect if a player has landed on a tile
 

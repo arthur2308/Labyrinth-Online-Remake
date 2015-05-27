@@ -11,18 +11,31 @@ var socks = chrome.sockets.tcp, socketId, GameState = require("../gamestate.js")
   Player = require("../player.js"),
   hasCollected = false,
   hasSlid = false,
+  isMyTurn = false,
   PASSWORD = "FABIO",
-  socketId = '', log = function (msg) {
-  "use strict";
-  $('#console').append(msg + '<br>');
-  console.log(msg);
-},
+  socketId = '',
+  finishTurn,
+  setupTurn,
+  setMove,
+  setSlide,
+  renderScores,
+  logCount = 0,
+
+  log = function (msg) {
+    "use strict";
+    logCount += 1;
+    $('#msg' + (logCount - 3).toString()).remove();
+    $('#console').append('<div id="msg' + logCount + '">' + msg + '<br></div>');
+    console.log(msg + ', log count = ' + logCount);
+  },
+
   str2ab = function (str) {
     "use strict";
 
     var encoder = new TextEncoder('utf-8');
     return encoder.encode(str).buffer;
   },
+
   ab2str = function (ab) {
     "use strict";
 
@@ -31,59 +44,39 @@ var socks = chrome.sockets.tcp, socketId, GameState = require("../gamestate.js")
     return decoder.decode(dataView);
   };
 
-function setupTurn() {
-  if (gs.players[gs.activePlayerNum] == myId) {
+setupTurn = function () {
+  "use strict";
+  console.log("** Turn check **, " + gs.players[gs.activePlayerNum].id + ", " + myId.toString());
+  if (gs.players[gs.activePlayerNum].id === myId.toString()) {
     // It's this client's turn, do stuff
-    
+    log("It's your turn!");
+    isMyTurn = true;
     if (hasCollected) {
       finishTurn();
       return;
     }
-
     if (hasSlid) {
-      setMove(true);
-      setSlide(false);
       return;
     }
-    else {
-      setMove(false);
-      setSlide(true);
-      return;
-    }
+    return;
   }
-  else {
-    log("Waiting for player " + gs.players[gs.activePlayerNum]);
-  }
-}
+  log("Waiting for player " + gs.players[gs.activePlayerNum].id);
+};
 
-function setMove(isEnabled) {
-  $('#m_up').prop("disabled",isEnabled);
-  $('#m_right').prop("disabled",isEnabled);
-  $('#m_down').prop("disabled",isEnabled);
-  $('#m_left').prop("disabled",isEnabled);
-  $('#col_tok').prop("disabled",isEnabled);
-}
 
-function setSlide(isEnabled) {
-  $('#rot_tile').prop("disabled",isEnabled);
-  $('#slide_index').prop("disabled",isEnabled);
-  $('#s_up').prop("disabled",isEnabled);
-  $('#s_right').prop("disabled",isEnabled);
-  $('#s_down').prop("disabled",isEnabled);
-  $('#s_left').prop("disabled",isEnabled);
-}
-
-function finishTurn() {
+finishTurn = function () {
+  "use strict";
   var msg, i;
   gs.activePlayerNum = (gs.activePlayerNum + 1) % gs.players.length;
   hasSlid = false;
   hasCollected = false;
-  msg = PASSWORD + "\n" + "GAMESTATE";
+  isMyTurn = false;
+  msg = PASSWORD + "\n" + "GAMESTATE\n";
   msg += gs.players.length + "\n"; // Num of players in file
   for (i = 0; i < gs.players.length; i += 1) {
-    msg += JSON.stringify(gs.players[i].id) + "\n";
-    msg += JSON.stringify(gs.players[i].boardLocation) + "\n";
-    msg += JSON.stringify(gs.players[i].collectedTokens) + "\n";
+    msg += gs.players[i].id + "\n";
+    msg += gs.players[i].boardLocation + "\n";
+    msg += gs.players[i].collectedTokens + "\n";
   }
 
   // Do the tiles
@@ -102,10 +95,20 @@ function finishTurn() {
   msg += gs.winnerId + "\n";
   msg += gs.drawnToks;
   socks.send(socketId, str2ab(msg), function (info) {
+    log("Ending turn. Sent gamestate to server.");
   });
   setupTurn();
+};
 
-}
+renderScores = function () {
+  var i, scoreString = "";
+  $('.score').remove();
+  for (i = 0; i < gs.players.length; i += 1) {
+    scoreString += '<div class="score"><p>Player ' + gs.players[i].id + ": " + gs.players[i].collectedTokens + '</p><br></div>';
+  }
+  $('#scoreboard').append(scoreString);
+  
+};
 
 // Generates a single tile. tokId and playerId are -1 if not present
 function generateTile(openingTable, tokId, playerIndex, div_id) {
@@ -233,7 +236,7 @@ function generateTile(openingTable, tokId, playerIndex, div_id) {
   }
 
   switch (playerIndex) {
-  case -1: 
+  case -1:
     break;
   case 0:
     playerImg = "player_dot_0.png";
@@ -257,112 +260,110 @@ function generateTile(openingTable, tokId, playerIndex, div_id) {
   if (playerIndex !== -1) {
     elementString += '<img src="' + playerImg + '" style="position: absolute; top: 10px; left: 10px;"/></div>';
   }
-  
   return elementString;
 }
 
 function populateToks() {
-var i, tokImg;
-$('.drawn_toks').remove();
-for (i = 0; i < gs.drawnToks.length; i += 1) { 
-  switch (gs.drawnToks[i]) {
-  case -1:
-    tokImg = "no_img.png";
-    break;
-  case 0:
-    tokImg = "no_img.png";
-    break;
-  case 1:
-    tokImg = "dragon.png";
-    break;
-  case 2:
-    tokImg = "ring.png";
-    break;
-  case 3:
-    tokImg = "owl.png";
-    break;
-  case 4:
-    tokImg = "spider.png";
-    break;
-  case 5:
-    tokImg = "sword.png";
-    break;
-  case 6:
-    tokImg = "money_bag.png";
-    break;
-  case 7:
-    tokImg = "tome.png";
-    break;
-  case 8:
-    tokImg = "candlestick.png";
-    break;
-  case 9:
-    tokImg = "map.png";
-    break;
-  case 10:
-    tokImg = "helmet.png";
-    break;
-  case 11:
-    tokImg = "bat.png";
-    break;
-  case 12:
-    tokImg = "princess.png";
-    break;
-  case 13:
-    tokImg = "keys.png";
-    break;
-  case 14:
-    tokImg = "hobbit.png";
-    break;
-  case 15:
-    tokImg = "chest.png";
-    break;
-  case 16:
-    tokImg = "skull.png";
-    break;
-  case 17:
-    tokImg = "beetle.png";
-    break;
-  case 18:
-    tokImg = "crown.png";
-    break;
-  case 19:
-    tokImg = "rat.png";
-    break;
-  case 20:
-    tokImg = "emerald.png";
-    break;
-  case 21:
-    tokImg = "moth.png";
-    break;
-  case 22:
-    tokImg = "genie.png";
-    break;
-  case 23:
-    tokImg = "ghost.png";
-    break;
-  case 24:
-    tokImg = "newt.png";
-    break;
-  default:
-    console.log("Could not find case for given tokId " + gs.drawnToks[i]);
+  "use strict";
+  var i, tokImg;
+  $('.drawn_toks').remove();
+  for (i = 0; i < gs.drawnToks.length; i += 1) {
+    switch (gs.drawnToks[i]) {
+    case -1:
+      tokImg = "no_img.png";
+      break;
+    case 0:
+      tokImg = "no_img.png";
+      break;
+    case 1:
+      tokImg = "dragon.png";
+      break;
+    case 2:
+      tokImg = "ring.png";
+      break;
+    case 3:
+      tokImg = "owl.png";
+      break;
+    case 4:
+      tokImg = "spider.png";
+      break;
+    case 5:
+      tokImg = "sword.png";
+      break;
+    case 6:
+      tokImg = "money_bag.png";
+      break;
+    case 7:
+      tokImg = "tome.png";
+      break;
+    case 8:
+      tokImg = "candlestick.png";
+      break;
+    case 9:
+      tokImg = "map.png";
+      break;
+    case 10:
+      tokImg = "helmet.png";
+      break;
+    case 11:
+      tokImg = "bat.png";
+      break;
+    case 12:
+      tokImg = "princess.png";
+      break;
+    case 13:
+      tokImg = "keys.png";
+      break;
+    case 14:
+      tokImg = "hobbit.png";
+      break;
+    case 15:
+      tokImg = "chest.png";
+      break;
+    case 16:
+      tokImg = "skull.png";
+      break;
+    case 17:
+      tokImg = "beetle.png";
+      break;
+    case 18:
+      tokImg = "crown.png";
+      break;
+    case 19:
+      tokImg = "rat.png";
+      break;
+    case 20:
+      tokImg = "emerald.png";
+      break;
+    case 21:
+      tokImg = "moth.png";
+      break;
+    case 22:
+      tokImg = "genie.png";
+      break;
+    case 23:
+      tokImg = "ghost.png";
+      break;
+    case 24:
+      tokImg = "newt.png";
+      break;
+    default:
+      console.log("Could not find case for given tokId " + gs.drawnToks[i]);
+    }
+    $('#drawn_toks').append('<img class="drawn_toks" src="' + tokImg + '" style="position: absolute; top: 10px; left: ' + (100 * i) + 'px;"/></div>');
   }
-  $('#drawn_toks').append('<img class="drawn_toks" src="' + tokImg + '" style="position: absolute; top: 10px; left: 10px;"/></div>');
-  
-}
 }
 
 function populateGameBoard(container) {
   "use strict";
-  var table, openingTable, tokId, playerIndex, row, i, j, k;
+  var table, playerIndex, row, i, j, k, tile;
+  console.log("*Sanity check*, gs.setOfTiles.tileSet[0].tokID = " + gs.setOfTiles.tileSet[0].tokID);
   $(".CSSTableGenerator").remove();
   table = $("<table/>").addClass('CSSTableGenerator');
   for (i = 0; i < 7; i += 1) {
     row = $("<tr/>");
     for (j = 0; j < 7; j += 1) {
-      openingTable = gs.setOfTiles.tileSet[j + (7 * i)].openingTable;
-      tokId = gs.setOfTiles.tileSet[j + (7 * i)].tokID;
-      console.log("tokId is " + tokId);
+      tile = gs.setOfTiles.tileSet[j + (7 * i)];
       playerIndex = -1;
       for (k = 0; k < gs.players.length; k += 1) {
         if (gs.players[k].boardLocation === j + (7 * i)) {
@@ -370,11 +371,14 @@ function populateGameBoard(container) {
           break;
         }
       }
-      row.append($("<td/>")).append(generateTile(openingTable, tokId, playerIndex, "tile"));
+      row.append($("<td/>")).append(generateTile(tile.openingTable, tile.tokID, playerIndex, "tile"));
+      console.log("Rendered tile with token: " + tile.tokID);
     }
     table.append(row);
   }
   populateToks();
+  renderScores();
+  $('#rot_tile').click()
   return container.append(table);
 }
 
@@ -386,8 +390,8 @@ $(document).ready(function () {
 
   // **** RECEIVE LISTENER ****
   socks.onReceive.addListener(function (info) {
-    var msg = ab2str(info.data), adminMsg;
-    adminMsg = msg.split('\n');
+    var msg = ab2str(info.data), adminMsg, gameStr = "", i, j, currentIndex, numPlayers;
+    adminMsg = msg.toString().split('\n');
     // is this an admin message?
     if (adminMsg[0] === PASSWORD) {
       // Yes, decode it
@@ -396,66 +400,80 @@ $(document).ready(function () {
       adminMsg.shift();
       if (adminMsg[0] === "ID_ASSIGNMENT") {
         adminMsg.shift();
-        myId = parseInt(adminMsg[0]);
+        myId = adminMsg[0];
         log("Assigned ID " + myId + " by the server.");
         return;
       }
 
       if (adminMsg[0] === "GAMESTATE") {
-        var gameStr = "", i, fs, currentIndex, numPlayers;
         adminMsg.shift();
         gameStr = adminMsg;
         // Get number of players
-        numPlayers = gameStr[0];
-        console.log("**TEST** numPlayers = " + numPlayers);
-        console.log(numPlayers);
-  
+        numPlayers = parseInt(gameStr[0], 10);
+        //console.log("**TEST** numPlayers = " + numPlayers);
+
         // Recreate players
         i = 1;
         currentIndex = 0;
         while (i < ((numPlayers * 3) + 1)) {
           gs.players[currentIndex] = new Player(0, 0, []);
-          gs.players[currentIndex].id = gameStr[i];
+          gs.players[currentIndex].id = gameStr[i].toString();
           i += 1;
-          gs.players[currentIndex].boardLocation = gameStr[i];
+          gs.players[currentIndex].boardLocation = parseInt(gameStr[i], 10);
           i += 1;
-          gs.players[currentIndex].collectedTokens = gameStr[i];
+          gs.players[currentIndex].collectedTokens = gameStr[i].split(',');
+          for (j = 0; j < gs.players[currentIndex].collectedTokens.length; j += 1) {
+            gs.players[currentIndex].collectedTokens[j] = parseInt(gs.players[currentIndex].collectedTokens[j], 10);
+          }
           i += 1;
+          console.log("Player created: id = " + gs.players[currentIndex].id + " board location = " + gs.players[currentIndex].boardLocation + " collected tokens = " + gs.players[currentIndex].collectedTokens);
           currentIndex += 1;
         }
+
         // Recreate the gameboard
         currentIndex = 0;
         gs.setOfTiles = new Tiles();
-        while (i <= currentIndex) {
-          gameStr[i] = gs.setOfTiles.tileSet[currentIndex].tokId;
+        console.log("*Test gs.setOfTiles.tileSet[0].tokID prior to text input* = " + gs.setOfTiles.tileSet[0].tokID);
+        while (currentIndex < 50) {
+          gs.setOfTiles.tileSet[currentIndex].tokID = parseInt(gameStr[i], 10);
           i += 1;
-          gameStr[i] = gs.setOfTiles.tileSet[currentIndex].openingTable;
+          gs.setOfTiles.tileSet[currentIndex].openingTable = gameStr[i].split(',');
           i += 1;
+          console.log(currentIndex  + " Tile created: tokID = " + gs.setOfTiles.tileSet[currentIndex].tokID + " opening table = " + gs.setOfTiles.tileSet[currentIndex].openingTable);
           currentIndex += 1;
         }
         // Recreate last index
-        gs.setOfTiles.playableTileLastCoord = gameStr[i];
+        gs.setOfTiles.playableTileLastCoord = parseInt(gameStr[i], 10);
+        //console.log("lastPlayableTile = " + gs.setOfTiles.playableTileLastCoord);
         i += 1;
         // Recreate the tokens
         gs.setOfToks = new Tokens();
-        gs.setOfToks.toks = gameStr[i];
+        gs.setOfToks.toks = gameStr[i].split(',');
+        //console.log("Set of toks = " + gs.setOfToks.toks);
         i += 1;
-        gs.setOfToks.drawIndex = gameStr[i];
+        gs.setOfToks.drawIndex = parseInt(gameStr[i], 10);
+        //console.log("Draw index = " + gs.setOfToks.drawIndex);
         i += 1;
         // Recreate misc attributes
-        gs.activePlayerNum = gameStr[i];
+        gs.activePlayerNum = parseInt(gameStr[i], 10);
+        console.log("activePlayerNum = " + gs.activePlayerNum);
         i += 1;
-        gs.winnerId = gameStr[i];
+        gs.winnerId = parseInt(gameStr[i], 10);
+        console.log("winnerId = " + gs.winnerId);
         i += 1;
-        gs.drawnToks = gameStr[i];
-        console.log("**TEST** drawnToks = " + gs.drawnToks);
+        gs.drawnToks = gameStr[i].split(',');
+        console.log("drawnToks = " + gs.drawnToks);
+        for (i = 0; i < gs.drawnToks.length; i += 1) {
+          gs.drawnToks[i] = parseInt(gs.drawnToks[i], 10);
+        }
+
         populateGameBoard($("#game_board"));
         log("Gamestate info received from server");
         setupTurn();
         return;
       }
     }
-    log("Received: " + msg);
+    log(msg);
   });
 
   socks.onReceiveError.addListener(function (info) {
@@ -463,29 +481,65 @@ $(document).ready(function () {
   });
 
   // Move the player up
-  $('#m_up').click(function() {
-    gs.movePlayer(0, 'u');
-    populateGameBoard($("#game_board"));
+  $('#m_up').click(function () {
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+    if (!hasSlid) {
+      log("You must first slide the tile.");
+      return;
+    }
+    if (gs.movePlayer(gs.activePlayerNum, 'u'))
+      populateGameBoard($("#game_board"));
+    else log("Can't move that way!");
   });
 
   // Move the player down
-  $('#m_down').click(function() {
-    gs.movePlayer(0, 'd');
-    populateGameBoard($("#game_board"));
+  $('#m_down').click(function () {
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+    if (!hasSlid) {
+      log("You must first slide the tile.");
+      return;
+    }
+    if (gs.movePlayer(gs.activePlayerNum, 'd'))
+      populateGameBoard($("#game_board"));
+    else log("Can't move that way!");
   });
 
   // Move the player left
-  $('#m_left').click(function() {
-    gs.movePlayer(0, 'l');
-    populateGameBoard($("#game_board"));
+  $('#m_left').click(function () {
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+    if (!hasSlid) {
+      log("You must first slide the tile.");
+      return;
+    }
+    if (gs.movePlayer(gs.activePlayerNum, 'l'))
+      populateGameBoard($("#game_board"));
+    else log("Can't move that way!");
   });
 
-  $('#m_right').click(function() {
-    gs.movePlayer(0, 'r');
-    populateGameBoard($("#game_board"));
+  $('#m_right').click(function () {
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+    if (!hasSlid) {
+      log("You must first slide the tile.");
+      return;
+    }
+    if (gs.movePlayer(gs.activePlayerNum, 'r'))
+      populateGameBoard($("#game_board"));
+    else log("Can't move that way!");
   });
 
-  $('#rot_tile').click(function() {
+  $('#rot_tile').click(function () {
     var tile;
     gs.setOfTiles.tileSet[49].rotate(1);
     tile = gs.setOfTiles.tileSet[49];
@@ -494,9 +548,18 @@ $(document).ready(function () {
     $('#tile_preview').append(generateTile(tile.openingTable, tile.tokID, -1, "tile_img"));
   });
 
-  $('#s_up').click(function() {
+  $('#s_up').click(function () {
+    if (hasSlid === true) {
+      log('Already slid the tile this turn!');
+      return;
+    }
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+
     // get index to slide tile into
-    var index = parseInt($('#slide_index').val()), i, tile;
+    var index = parseInt($('#slide_index').val(), 10), tile;
     // slide the tile
     gs.slide(index, 'u');
     $('#tile_img').remove();
@@ -508,9 +571,18 @@ $(document).ready(function () {
     setupTurn();
   });
 
-  $('#s_right').click(function() {
+  $('#s_right').click(function () {
+    if (hasSlid === true) {
+      log('Already slid the tile this turn!');
+      return;
+    }
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+
     // get index to slide tile into
-    var index = parseInt($('#slide_index').val()), i, tile;
+    var index = parseInt($('#slide_index').val(), 10), tile;
     // slide the tile
     gs.slide(index, 'r');
     $('#tile_img').remove();
@@ -522,9 +594,18 @@ $(document).ready(function () {
     setupTurn();
   });
 
-  $('#s_down').click(function() {
+  $('#s_down').click(function () {
+    if (hasSlid === true) {
+      log('Already slid the tile this turn!');
+      return;
+    }
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+
     // get index to slide tile into
-    var index = parseInt($('#slide_index').val()), i, tile;
+    var index = parseInt($('#slide_index').val(), 10), tile;
     // slide the tile
     gs.slide(index, 'd');
     $('#tile_img').remove();
@@ -536,9 +617,18 @@ $(document).ready(function () {
     setupTurn();
   });
 
-  $('#s_left').click(function() {
+  $('#s_left').click(function () {
+    if (hasSlid === true) {
+      log('Already slid the tile this turn!');
+      return;
+    }
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+
     // get index to slide tile into
-    var index = parseInt($('#slide_index').val()), i, tile;
+    var index = parseInt($('#slide_index').val(), 10), tile;
     // slide the tile
     gs.slide(index, 'l');
     $('#tile_img').remove();
@@ -550,25 +640,37 @@ $(document).ready(function () {
     setupTurn();
   });
 
-  $('#fin').click(function() {
+  $('#fin').click(function () {
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
     if (hasSlid) {
       finishTurn();
+    } else {
+      log("You must slide the tile before ending your turn.");
     }
   });
 
-  $('#pickup').click(function() {
-    if (gs.pickToken()) {
-      hasCollected(true);
-      setupTurn();
+  $('#pickup').click(function () {
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
     }
-    else {
+
+    if (gs.pickToken()) {
+      log("You have picked up a token!");
+      hasCollected(true);
+      populateGameBoard($("#game_board"));
+      finishTurn();
+    } else {
       log("Unable to pick up token.");
     }
   });
 
 
   $('#connect').click(function () {
-    var server = $('#server').val(), adminMsg = "";
+    var server = $('#server').val();
     if (socketId !== '') {
       log('Already connected!');
       return;
@@ -614,7 +716,6 @@ $(document).ready(function () {
     }
 
     socks.send(socketId, str2ab(msg), function (info) {
-      log("Sent " + JSON.stringify(info));
     });
   });
 });

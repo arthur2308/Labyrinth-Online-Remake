@@ -49,8 +49,7 @@ gs.movePlayer = function (playerIndex, direction) {
     tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation - 7;
     console.log("tempPos: " + tempPos);
-    if ((tempPos < 0 || tempPos > 48) || ((this.setOfTiles.tileSet[tempPos].openingTable[2] === false) ||
-      (this.setOfTiles.tileSet[tempPos + 7].openingTable[0] === false))) {
+    if ((tempPos < 0 || tempPos > 48) || (((this.setOfTiles.tileSet[tempPos].openingTable[2]=="true") === false) || ((this.setOfTiles.tileSet[tempPos + 7].openingTable[0] == "true") === false))) {
       return false;
     }
     this.players[playerIndex].boardLocation = tempPos;
@@ -63,11 +62,10 @@ gs.movePlayer = function (playerIndex, direction) {
     tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation + 1;
     console.log("tempPos: " + tempPos);
-    if ((tempPos % 7 === 0) || ((this.setOfTiles.tileSet[tempPos].openingTable[3] === false) ||
-        (this.setOfTiles.tileSet[tempPos - 1].openingTable[1] === false))) {
+    if ((tempPos % 7 === 0) || (((this.setOfTiles.tileSet[tempPos].openingTable[3] == "true") === false) || ((this.setOfTiles.tileSet[tempPos - 1].openingTable[1] == "true") === false))) {
       return false;
     }
-    this.players[playerIndex].boardLocation += 1;
+    this.players[playerIndex].boardLocation = tempPos;
     return true;
   }
 
@@ -77,8 +75,7 @@ gs.movePlayer = function (playerIndex, direction) {
     tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation + 7;
     console.log("tempPos: " + tempPos);
-    if ((tempPos < 0 || tempPos > 48) || ((this.setOfTiles.tileSet[tempPos].openingTable[0] === false) ||
-      (this.setOfTiles.tileSet[tempPos - 7].openingTable[2] === false))) {
+    if ((tempPos < 0 || tempPos > 48) || (((this.setOfTiles.tileSet[tempPos].openingTable[0] == "true") === false) || ((this.setOfTiles.tileSet[tempPos - 7].openingTable[2] == "true") === false))) {
       return false;
     }
     this.players[playerIndex].boardLocation = tempPos;
@@ -91,22 +88,24 @@ gs.movePlayer = function (playerIndex, direction) {
     tempPos = 0;
     tempPos = this.players[playerIndex].boardLocation - 1;
     console.log("tempPos: " + tempPos);
-    if ((tempPos % 7 === 0) || (this.setOfTiles.tileSet[tempPos].openingtable[1] === false) ||
-        (this.setOfTiles.tileSet[tempPos + 1].openingTable[3] === false)) {
+    if ((tempPos % 7 === 6) || (((this.setOfTiles.tileSet[tempPos].openingTable[1] == "true") === false) || ((this.setOfTiles.tileSet[tempPos + 1].openingTable[3] == "true") === false))) {
       return false;
     }
-    this.players[playerIndex].boardLocation -= 1;
+    this.players[playerIndex].boardLocation = tempPos;
     return true;
   }
 };
 
-
+// SLIDE---------------------------------------------------------------------------
+// Slides the player with the sliding row/column
+// Calls setOfTiles's slide finction to slide the pieces
+// Changes position of the player accordingly
 gs.slide = function (Index, direction) {
   "use strict";
   var i;
   if (direction === 'u') {
     this.setOfTiles.slideUp(Index);
-    for (i = 0; i < 3; i += 1) {
+    for (i = 0; i < this.players.length; i += 1) {
       if (this.players[i].boardLocation % 7 === Index) { // if same row or column
         if (this.players[i].boardLocation <= 6) {
           this.players[i].boardLocation += 42;
@@ -119,7 +118,7 @@ gs.slide = function (Index, direction) {
 
   if (direction === 'd') {
     this.setOfTiles.slideDown(Index);
-    for (i = 0; i < 3; i += 1) {
+    for (i = 0; i < this.players.length; i += 1) {
       if (this.players[i].boardLocation % 7 === Index) {
         if (this.players[i].boardLocation >= 42) {
           this.players[i].boardLocation -= 42;
@@ -132,8 +131,8 @@ gs.slide = function (Index, direction) {
 
   if (direction === 'l') {
     this.setOfTiles.slideLeft(Index);
-    for (i = 0; i < 3; i += 1) {
-      if (this.players[i].boardLocation % 7 === Index) {
+    for (i = 0; i < this.players.length; i += 1) {
+      if (parseInt(this.players[i].boardLocation / 7, 10) === Index) {
         if (this.players[i].boardLocation % 7 === 0) {
           this.players[i].boardLocation += 6;
         } else {
@@ -145,8 +144,8 @@ gs.slide = function (Index, direction) {
 
   if (direction === 'r') {
     this.setOfTiles.slideRight(Index);
-    for (i = 0; i < 3; i += 1) {
-      if (this.players[i].boardLocation % 7 === Index) {
+    for (i = 0; i < this.players.length; i += 1) {
+      if (parseInt(this.players[i].boardLocation / 7, 10) === Index) {
         if (this.players[i].boardLocation % 7 === 6) {
           this.players[i].boardLocation -= 6;
         } else {
@@ -156,6 +155,34 @@ gs.slide = function (Index, direction) {
     }
   }
 };
+
+gs.pickToken = function () {
+  "use strict";
+  var tempPos = this.players[this.activePlayerNum].boardLocation, i, j;
+  for (i = 0; i < 3; i += 1) {
+    // Are we on a tile we can pick up?
+    if (this.setOfTiles.tileSet[tempPos].tokID === this.drawnToks[i]) {
+      // If so, check this tile against the tiles we've already collected, to ensure to duplicates exist
+      for (j = 0; j < this.players[this.activePlayerNum].collectedTokens.length; j += 1){
+        if (this.players[this.activePlayerNum].collectedTokens[j] === this.setOfTiles.tileSet[tempPos].tokID) {
+          console.log("Already picked up this token.");
+          return false;
+        }
+      }
+      this.players[this.activePlayerNum].collectedTokens.push(this.drawnToks[i]);
+      this.drawnToks[i] = this.setOfToks.drawToken();   
+      return true;
+    }
+  }
+  return false;
+};
+
+gs.checkForWinner = function () {
+  if (this.players[this.activePlayerNum].collectedToks >= 8) {
+    this.winnerId = this.activePlayerNum;
+    console.log(this.player[this.winnerId] + " has won the game!");
+  }
+}
 
 // Need to create a function to detect if a player has landed on a tile
 
@@ -601,17 +628,37 @@ module.exports = Tokens;
 
 var socks = chrome.sockets.tcp, socketId, GameState = require("../gamestate.js"),
   gs = new GameState(),
-  socketId = '', log = function (msg) {
-  "use strict";
-  $('#console').append(msg + '<br>');
-  console.log(msg);
-},
+  myId = -1,
+  Tokens = require("../tokens.js"),
+  Tiles  = require("../tiles.js"),
+  Player = require("../player.js"),
+  hasCollected = false,
+  hasSlid = false,
+  isMyTurn = false,
+  PASSWORD = "FABIO",
+  socketId = '',
+  finishTurn,
+  setupTurn,
+  setMove,
+  setSlide,
+  renderScores,
+  logCount = 0,
+
+  log = function (msg) {
+    "use strict";
+    logCount += 1;
+    $('#msg' + (logCount - 3).toString()).remove();
+    $('#console').append('<div id="msg' + logCount + '">' + msg + '<br></div>');
+    console.log(msg + ', log count = ' + logCount);
+  },
+
   str2ab = function (str) {
     "use strict";
 
     var encoder = new TextEncoder('utf-8');
     return encoder.encode(str).buffer;
   },
+
   ab2str = function (ab) {
     "use strict";
 
@@ -619,6 +666,72 @@ var socks = chrome.sockets.tcp, socketId, GameState = require("../gamestate.js")
       decoder = new TextDecoder('utf-8');
     return decoder.decode(dataView);
   };
+
+setupTurn = function () {
+  "use strict";
+  console.log("** Turn check **, " + gs.players[gs.activePlayerNum].id + ", " + myId.toString());
+  if (gs.players[gs.activePlayerNum].id === myId.toString()) {
+    // It's this client's turn, do stuff
+    log("It's your turn!");
+    isMyTurn = true;
+    if (hasCollected) {
+      finishTurn();
+      return;
+    }
+    if (hasSlid) {
+      return;
+    }
+    return;
+  }
+  log("Waiting for player " + gs.players[gs.activePlayerNum].id);
+};
+
+
+finishTurn = function () {
+  "use strict";
+  var msg, i;
+  gs.activePlayerNum = (gs.activePlayerNum + 1) % gs.players.length;
+  hasSlid = false;
+  hasCollected = false;
+  isMyTurn = false;
+  msg = PASSWORD + "\n" + "GAMESTATE\n";
+  msg += gs.players.length + "\n"; // Num of players in file
+  for (i = 0; i < gs.players.length; i += 1) {
+    msg += gs.players[i].id + "\n";
+    msg += gs.players[i].boardLocation + "\n";
+    msg += gs.players[i].collectedTokens + "\n";
+  }
+
+  // Do the tiles
+  for (i = 0; i < 50; i += 1) {
+    msg += gs.setOfTiles.tileSet[i].tokID + "\n";
+    msg += gs.setOfTiles.tileSet[i].openingTable + "\n";
+  }
+  msg += gs.setOfTiles.playableTileLastCoord + "\n";
+
+  // Do the tokens
+  msg += gs.setOfToks.toks + "\n";
+  msg += gs.setOfToks.drawIndex + "\n";
+
+  // Misc attributes
+  msg += gs.activePlayerNum + "\n";
+  msg += gs.winnerId + "\n";
+  msg += gs.drawnToks;
+  socks.send(socketId, str2ab(msg), function (info) {
+    log("Ending turn. Sent gamestate to server.");
+  });
+  setupTurn();
+};
+
+renderScores = function () {
+  var i, scoreString = "";
+  $('.score').remove();
+  for (i = 0; i < gs.players.length; i += 1) {
+    scoreString += '<div class="score"><p>Player ' + gs.players[i].id + ": " + gs.players[i].collectedTokens + '</p><br></div>';
+  }
+  $('#scoreboard').append(scoreString);
+  
+};
 
 // Generates a single tile. tokId and playerId are -1 if not present
 function generateTile(openingTable, tokId, playerIndex, div_id) {
@@ -746,6 +859,8 @@ function generateTile(openingTable, tokId, playerIndex, div_id) {
   }
 
   switch (playerIndex) {
+  case -1:
+    break;
   case 0:
     playerImg = "player_dot_0.png";
     break;
@@ -768,21 +883,110 @@ function generateTile(openingTable, tokId, playerIndex, div_id) {
   if (playerIndex !== -1) {
     elementString += '<img src="' + playerImg + '" style="position: absolute; top: 10px; left: 10px;"/></div>';
   }
-  
   return elementString;
+}
+
+function populateToks() {
+  "use strict";
+  var i, tokImg;
+  $('.drawn_toks').remove();
+  for (i = 0; i < gs.drawnToks.length; i += 1) {
+    switch (gs.drawnToks[i]) {
+    case -1:
+      tokImg = "no_img.png";
+      break;
+    case 0:
+      tokImg = "no_img.png";
+      break;
+    case 1:
+      tokImg = "dragon.png";
+      break;
+    case 2:
+      tokImg = "ring.png";
+      break;
+    case 3:
+      tokImg = "owl.png";
+      break;
+    case 4:
+      tokImg = "spider.png";
+      break;
+    case 5:
+      tokImg = "sword.png";
+      break;
+    case 6:
+      tokImg = "money_bag.png";
+      break;
+    case 7:
+      tokImg = "tome.png";
+      break;
+    case 8:
+      tokImg = "candlestick.png";
+      break;
+    case 9:
+      tokImg = "map.png";
+      break;
+    case 10:
+      tokImg = "helmet.png";
+      break;
+    case 11:
+      tokImg = "bat.png";
+      break;
+    case 12:
+      tokImg = "princess.png";
+      break;
+    case 13:
+      tokImg = "keys.png";
+      break;
+    case 14:
+      tokImg = "hobbit.png";
+      break;
+    case 15:
+      tokImg = "chest.png";
+      break;
+    case 16:
+      tokImg = "skull.png";
+      break;
+    case 17:
+      tokImg = "beetle.png";
+      break;
+    case 18:
+      tokImg = "crown.png";
+      break;
+    case 19:
+      tokImg = "rat.png";
+      break;
+    case 20:
+      tokImg = "emerald.png";
+      break;
+    case 21:
+      tokImg = "moth.png";
+      break;
+    case 22:
+      tokImg = "genie.png";
+      break;
+    case 23:
+      tokImg = "ghost.png";
+      break;
+    case 24:
+      tokImg = "newt.png";
+      break;
+    default:
+      console.log("Could not find case for given tokId " + gs.drawnToks[i]);
+    }
+    $('#drawn_toks').append('<img class="drawn_toks" src="' + tokImg + '" style="position: absolute; top: 10px; left: ' + (100 * i) + 'px;"/></div>');
+  }
 }
 
 function populateGameBoard(container) {
   "use strict";
-  var table, openingTable, tokId, playerIndex, row, i, j, k;
+  var table, playerIndex, row, i, j, k, tile;
+  console.log("*Sanity check*, gs.setOfTiles.tileSet[0].tokID = " + gs.setOfTiles.tileSet[0].tokID);
   $(".CSSTableGenerator").remove();
   table = $("<table/>").addClass('CSSTableGenerator');
   for (i = 0; i < 7; i += 1) {
     row = $("<tr/>");
     for (j = 0; j < 7; j += 1) {
-      openingTable = gs.setOfTiles.tileSet[j + (7 * i)].openingTable;
-      tokId = gs.setOfTiles.tileSet[j + (7 * i)].tokID;
-      console.log("tokId is " + tokId);
+      tile = gs.setOfTiles.tileSet[j + (7 * i)];
       playerIndex = -1;
       for (k = 0; k < gs.players.length; k += 1) {
         if (gs.players[k].boardLocation === j + (7 * i)) {
@@ -790,47 +994,175 @@ function populateGameBoard(container) {
           break;
         }
       }
-      row.append($("<td/>")).append(generateTile(openingTable, tokId, playerIndex, "tile"));
+      row.append($("<td/>")).append(generateTile(tile.openingTable, tile.tokID, playerIndex, "tile"));
+      console.log("Rendered tile with token: " + tile.tokID);
     }
     table.append(row);
   }
+  populateToks();
+  renderScores();
+  $('#rot_tile').click()
   return container.append(table);
 }
 
-
 $(document).ready(function () {
   "use strict";
-  gs.createNewGame([11, 12, 13]); // Test
-  populateGameBoard($("#game_board"));
+  // Test lines, remove for production
+  //gs.createNewGame([11, 12, 13]); // Test
+  //populateGameBoard($("#game_board"));
+
+  // **** RECEIVE LISTENER ****
   socks.onReceive.addListener(function (info) {
-    log("Received: " + ab2str(info.data));
+    var msg = ab2str(info.data), adminMsg, gameStr = "", i, j, currentIndex, numPlayers;
+    adminMsg = msg.toString().split('\n');
+    // is this an admin message?
+    if (adminMsg[0] === PASSWORD) {
+      // Yes, decode it
+
+      // Remove first element
+      adminMsg.shift();
+      if (adminMsg[0] === "ID_ASSIGNMENT") {
+        adminMsg.shift();
+        myId = adminMsg[0];
+        log("Assigned ID " + myId + " by the server.");
+        return;
+      }
+
+      if (adminMsg[0] === "GAMESTATE") {
+        adminMsg.shift();
+        gameStr = adminMsg;
+        // Get number of players
+        numPlayers = parseInt(gameStr[0], 10);
+        //console.log("**TEST** numPlayers = " + numPlayers);
+
+        // Recreate players
+        i = 1;
+        currentIndex = 0;
+        while (i < ((numPlayers * 3) + 1)) {
+          gs.players[currentIndex] = new Player(0, 0, []);
+          gs.players[currentIndex].id = gameStr[i].toString();
+          i += 1;
+          gs.players[currentIndex].boardLocation = parseInt(gameStr[i], 10);
+          i += 1;
+          gs.players[currentIndex].collectedTokens = gameStr[i].split(',');
+          for (j = 0; j < gs.players[currentIndex].collectedTokens.length; j += 1) {
+            gs.players[currentIndex].collectedTokens[j] = parseInt(gs.players[currentIndex].collectedTokens[j], 10);
+          }
+          i += 1;
+          console.log("Player created: id = " + gs.players[currentIndex].id + " board location = " + gs.players[currentIndex].boardLocation + " collected tokens = " + gs.players[currentIndex].collectedTokens);
+          currentIndex += 1;
+        }
+
+        // Recreate the gameboard
+        currentIndex = 0;
+        gs.setOfTiles = new Tiles();
+        console.log("*Test gs.setOfTiles.tileSet[0].tokID prior to text input* = " + gs.setOfTiles.tileSet[0].tokID);
+        while (currentIndex < 50) {
+          gs.setOfTiles.tileSet[currentIndex].tokID = parseInt(gameStr[i], 10);
+          i += 1;
+          gs.setOfTiles.tileSet[currentIndex].openingTable = gameStr[i].split(',');
+          i += 1;
+          console.log(currentIndex  + " Tile created: tokID = " + gs.setOfTiles.tileSet[currentIndex].tokID + " opening table = " + gs.setOfTiles.tileSet[currentIndex].openingTable);
+          currentIndex += 1;
+        }
+        // Recreate last index
+        gs.setOfTiles.playableTileLastCoord = parseInt(gameStr[i], 10);
+        //console.log("lastPlayableTile = " + gs.setOfTiles.playableTileLastCoord);
+        i += 1;
+        // Recreate the tokens
+        gs.setOfToks = new Tokens();
+        gs.setOfToks.toks = gameStr[i].split(',');
+        //console.log("Set of toks = " + gs.setOfToks.toks);
+        i += 1;
+        gs.setOfToks.drawIndex = parseInt(gameStr[i], 10);
+        //console.log("Draw index = " + gs.setOfToks.drawIndex);
+        i += 1;
+        // Recreate misc attributes
+        gs.activePlayerNum = parseInt(gameStr[i], 10);
+        console.log("activePlayerNum = " + gs.activePlayerNum);
+        i += 1;
+        gs.winnerId = parseInt(gameStr[i], 10);
+        console.log("winnerId = " + gs.winnerId);
+        i += 1;
+        gs.drawnToks = gameStr[i].split(',');
+        console.log("drawnToks = " + gs.drawnToks);
+        for (i = 0; i < gs.drawnToks.length; i += 1) {
+          gs.drawnToks[i] = parseInt(gs.drawnToks[i], 10);
+        }
+
+        populateGameBoard($("#game_board"));
+        log("Gamestate info received from server");
+        setupTurn();
+        return;
+      }
+    }
+    log(msg);
   });
 
   socks.onReceiveError.addListener(function (info) {
     log("ReceiveError " + JSON.stringify(info));
   });
 
-  $('#m_up').click(function() {
-    gs.movePlayer(0, 'u');
-    populateGameBoard($("#game_board"));
+  // Move the player up
+  $('#m_up').click(function () {
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+    if (!hasSlid) {
+      log("You must first slide the tile.");
+      return;
+    }
+    if (gs.movePlayer(gs.activePlayerNum, 'u'))
+      populateGameBoard($("#game_board"));
+    else log("Can't move that way!");
   });
 
-  $('#m_down').click(function() {
-    gs.movePlayer(0, 'd');
-    populateGameBoard($("#game_board"));
+  // Move the player down
+  $('#m_down').click(function () {
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+    if (!hasSlid) {
+      log("You must first slide the tile.");
+      return;
+    }
+    if (gs.movePlayer(gs.activePlayerNum, 'd'))
+      populateGameBoard($("#game_board"));
+    else log("Can't move that way!");
   });
 
-  $('#m_left').click(function() {
-    gs.movePlayer(0, 'l');
-    populateGameBoard($("#game_board"));
+  // Move the player left
+  $('#m_left').click(function () {
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+    if (!hasSlid) {
+      log("You must first slide the tile.");
+      return;
+    }
+    if (gs.movePlayer(gs.activePlayerNum, 'l'))
+      populateGameBoard($("#game_board"));
+    else log("Can't move that way!");
   });
 
-  $('#m_right').click(function() {
-    gs.movePlayer(0, 'r');
-    populateGameBoard($("#game_board"));
+  $('#m_right').click(function () {
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+    if (!hasSlid) {
+      log("You must first slide the tile.");
+      return;
+    }
+    if (gs.movePlayer(gs.activePlayerNum, 'r'))
+      populateGameBoard($("#game_board"));
+    else log("Can't move that way!");
   });
 
-  $('#rot_tile').click(function() {
+  $('#rot_tile').click(function () {
     var tile;
     gs.setOfTiles.tileSet[49].rotate(1);
     tile = gs.setOfTiles.tileSet[49];
@@ -839,58 +1171,124 @@ $(document).ready(function () {
     $('#tile_preview').append(generateTile(tile.openingTable, tile.tokID, -1, "tile_img"));
   });
 
-  $('#s_up').click(function() {
+  $('#s_up').click(function () {
+    if (hasSlid === true) {
+      log('Already slid the tile this turn!');
+      return;
+    }
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+
     // get index to slide tile into
-    var index = parseInt($('#slide_index').val()), i, tile;
+    var index = parseInt($('#slide_index').val(), 10), tile;
     // slide the tile
     gs.slide(index, 'u');
     $('#tile_img').remove();
     tile = gs.setOfTiles.tileSet[49];
     $('#tile_preview').append(generateTile(tile.openingTable, tile.tokID, -1, "tile_img"));
     populateGameBoard($("#game_board"));
+    hasSlid = true;
     console.log("Slid up at index " + index);
+    setupTurn();
   });
 
-  $('#s_right').click(function() {
+  $('#s_right').click(function () {
+    if (hasSlid === true) {
+      log('Already slid the tile this turn!');
+      return;
+    }
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+
     // get index to slide tile into
-    var index = parseInt($('#slide_index').val()), i, tile;
+    var index = parseInt($('#slide_index').val(), 10), tile;
     // slide the tile
     gs.slide(index, 'r');
     $('#tile_img').remove();
     tile = gs.setOfTiles.tileSet[49];
     $('#tile_preview').append(generateTile(tile.openingTable, tile.tokID, -1, "tile_img"));
     populateGameBoard($("#game_board"));
+    hasSlid = true;
     console.log("Slid right at index " + index);
+    setupTurn();
   });
 
-  $('#s_down').click(function() {
+  $('#s_down').click(function () {
+    if (hasSlid === true) {
+      log('Already slid the tile this turn!');
+      return;
+    }
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+
     // get index to slide tile into
-    var index = parseInt($('#slide_index').val()), i, tile;
+    var index = parseInt($('#slide_index').val(), 10), tile;
     // slide the tile
     gs.slide(index, 'd');
     $('#tile_img').remove();
     tile = gs.setOfTiles.tileSet[49];
     $('#tile_preview').append(generateTile(tile.openingTable, tile.tokID, -1, "tile_img"));
     populateGameBoard($("#game_board"));
+    hasSlid = true;
     console.log("Slid down at index " + index);
-   
+    setupTurn();
   });
 
-  $('#s_left').click(function() {
+  $('#s_left').click(function () {
+    if (hasSlid === true) {
+      log('Already slid the tile this turn!');
+      return;
+    }
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+
     // get index to slide tile into
-    var index = parseInt($('#slide_index').val()), i, tile;
+    var index = parseInt($('#slide_index').val(), 10), tile;
     // slide the tile
     gs.slide(index, 'l');
     $('#tile_img').remove();
     tile = gs.setOfTiles.tileSet[49];
     $('#tile_preview').append(generateTile(tile.openingTable, tile.tokID, -1, "tile_img"));
     populateGameBoard($("#game_board"));
+    hasSlid = true;
     console.log("Slid left at index " + index);
-
+    setupTurn();
   });
 
-  $('#fin').click(function() {
+  $('#fin').click(function () {
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+    if (hasSlid) {
+      finishTurn();
+    } else {
+      log("You must slide the tile before ending your turn.");
+    }
+  });
 
+  $('#pickup').click(function () {
+    if (!isMyTurn) {
+      log("It's not your turn!");
+      return;
+    }
+
+    if (gs.pickToken()) {
+      log("You have picked up a token!");
+      hasCollected(true);
+      populateGameBoard($("#game_board"));
+      finishTurn();
+    } else {
+      log("Unable to pick up token.");
+    }
   });
 
 
@@ -941,9 +1339,8 @@ $(document).ready(function () {
     }
 
     socks.send(socketId, str2ab(msg), function (info) {
-      log("Sent " + JSON.stringify(info));
     });
   });
 });
 
-},{"../gamestate.js":1}]},{},[8]);
+},{"../gamestate.js":1,"../player.js":3,"../tiles.js":5,"../tokens.js":6}]},{},[8]);
