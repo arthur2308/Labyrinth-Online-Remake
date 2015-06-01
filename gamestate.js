@@ -153,7 +153,9 @@ gs.pickToken = function () {
   var tempPos = this.players[this.activePlayerNum].boardLocation, i, j;
   for (i = 0; i < 3; i += 1) {
     // Are we on a tile we can pick up?
-    if (this.setOfTiles.tileSet[tempPos].tokID === this.drawnToks[i]) {
+    console.log("**TEST** this.setOfTiles.tileSet[tempPos].tokID = " + this.setOfTiles.tileSet[tempPos].tokID);
+    console.log("**TEST** this.drawnToks[i] = " + this.drawnToks[i]);
+    if (parseInt(this.setOfTiles.tileSet[tempPos].tokID, 10) === parseInt(this.drawnToks[i], 10)) {
       // If so, check this tile against the tiles we've already collected, to ensure to duplicates exist
       for (j = 0; j < this.players[this.activePlayerNum].collectedTokens.length; j += 1) {
         if (this.players[this.activePlayerNum].collectedTokens[j] === this.setOfTiles.tileSet[tempPos].tokID) {

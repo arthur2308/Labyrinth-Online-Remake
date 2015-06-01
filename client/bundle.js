@@ -154,7 +154,9 @@ gs.pickToken = function () {
   var tempPos = this.players[this.activePlayerNum].boardLocation, i, j;
   for (i = 0; i < 3; i += 1) {
     // Are we on a tile we can pick up?
-    if (this.setOfTiles.tileSet[tempPos].tokID === this.drawnToks[i]) {
+    console.log("**TEST** this.setOfTiles.tileSet[tempPos].tokID = " + this.setOfTiles.tileSet[tempPos].tokID);
+    console.log("**TEST** this.drawnToks[i] = " + this.drawnToks[i]);
+    if (parseInt(this.setOfTiles.tileSet[tempPos].tokID, 10) === parseInt(this.drawnToks[i], 10)) {
       // If so, check this tile against the tiles we've already collected, to ensure to duplicates exist
       for (j = 0; j < this.players[this.activePlayerNum].collectedTokens.length; j += 1) {
         if (this.players[this.activePlayerNum].collectedTokens[j] === this.setOfTiles.tileSet[tempPos].tokID) {
@@ -673,16 +675,17 @@ var socks = chrome.sockets.tcp, socketId, GameState = require("../gamestate.js")
 setupTurn = function () {
   "use strict";
   console.log("Setting up turn...");
-  console.log("** Turn check **, " + gs.players[gs.activePlayerNum].id + ", " + myId.toString());
+  gs.checkForWinner();
+  if (gs.winnerId !== -1) {
+    log("Player " + gs.players[gs.winnerId].id.toString() + " has won the game!");
+    endGame();
+    return;
+  }
   if (gs.players[gs.activePlayerNum].id === myId.toString()) {
     // It's this client's turn, do stuff
     log("It's your turn!");
     isMyTurn = true;
-    gs.checkForWinner();
-    if (gs.winnerId !== -1) {
-      log("Player " + gs.players[gs.winnerId] + " has won the game!");
-      endGame();
-    }
+    
     if (hasCollected) {
       finishTurn();
       return;
@@ -738,6 +741,7 @@ pickupBtn = function () {
     log("You have picked up a token!");
     hasCollected = true;
     populateToks();
+    renderScores();
     finishTurn();
   } else {
     log("Unable to pick up token.");
@@ -747,6 +751,10 @@ pickupBtn = function () {
 
 rotBtn = function () {
   "use strict";
+  if (!isMyTurn) {
+    log("It's not your turn!");
+    return;
+  }
   console.log("Rotating tile...");
   gs.setOfTiles.tileSet[49].rotate(1);
   renderPreview();
@@ -824,7 +832,7 @@ renderPreview = function () {
 
 sendGamestate = function () {
   "use strict";
-  console.log("Sending gamestate...");
+  //console.log("Sending gamestate...");
   var i, msg = PASSWORD + "\n" + "GAMESTATE\n";
   msg += gs.players.length + "\n"; // Num of players in file
   for (i = 0; i < gs.players.length; i += 1) {
@@ -849,8 +857,8 @@ sendGamestate = function () {
   msg += gs.winnerId + "\n";
   msg += gs.drawnToks;
   socks.send(socketId, str2ab(msg), function (info) {
-    console.log("Sent " + info.length + " characters to server.");
-    log("Sent gamestate to server.");
+    //console.log("Sent " + info.length + " characters to server.");
+    //log("Sent gamestate to server.");
   });
 };
 
@@ -926,10 +934,10 @@ $(document).ready(function () {
         i += 1;
         // Recreate misc attributes
         gs.activePlayerNum = parseInt(gameStr[i], 10);
-        console.log("activePlayerNum = " + gs.activePlayerNum);
+        //console.log("activePlayerNum = " + gs.activePlayerNum);
         i += 1;
         gs.winnerId = parseInt(gameStr[i], 10);
-        console.log("winnerId = " + gs.winnerId);
+        //console.log("winnerId = " + gs.winnerId);
         i += 1;
         gs.drawnToks = gameStr[i].split(',');
         console.log("drawnToks = " + gs.drawnToks);
@@ -997,6 +1005,20 @@ $(document).ready(function () {
     pickupBtn();
   });
 
+  $("#jquery_jplayer_1").jPlayer( {
+    ready: function(event) {
+      $(this).jPlayer("setMedia", {
+	title: "Ambiance",
+	mp3: "69_Forest_Night.mp3"
+      }).jPlayer("play");
+    },
+    ended: function () {
+      $(this).jPlayer("play");
+    },
+    supplied: "mp3"
+                
+  });
+
   $('#connect').click(function () {
     var server = $('#server').val();
     if (socketId !== '') {
@@ -1051,7 +1073,7 @@ $(document).ready(function () {
 
 getTok = function (tokId) {
   "use strict";
-  console.log("Retrieving token image...");
+  //console.log("Retrieving token image...");
   var tokImg;
   switch (parseInt(tokId, 10)) {
   case -1:
@@ -1135,7 +1157,7 @@ getTok = function (tokId) {
   default:
     console.log("Could not find case for given tokId " + tokId);
   }
-  console.log("Retrieved token image! tokImg = " + tokImg);
+  //console.log("Retrieved token image! tokImg = " + tokImg);
   return tokImg;
 };
 
@@ -1224,7 +1246,7 @@ populateToks = function () {
 populateGameBoard = function (container) {
   "use strict";
   var table, playerIndex, row, i, j, k, tile;
-  console.log("*Sanity check*, gs.setOfTiles.tileSet[0].tokID = " + gs.setOfTiles.tileSet[0].tokID);
+  //console.log("*Sanity check*, gs.setOfTiles.tileSet[0].tokID = " + gs.setOfTiles.tileSet[0].tokID);
   $(".CSSTableGenerator").remove();
   table = $("<table/>").addClass('CSSTableGenerator');
   for (i = 0; i < 7; i += 1) {
@@ -1239,7 +1261,7 @@ populateGameBoard = function (container) {
         }
       }
       row.append($("<td/>")).append(generateTile(tile.openingTable, tile.tokID, playerIndex, "tile"));
-      console.log("Rendered tile with token: " + tile.tokID);
+      //console.log("Rendered tile with token: " + tile.tokID);
     }
     table.append(row);
   }
