@@ -3,17 +3,20 @@
   $, chrome, document, DataView, TextEncoder, TextDecoder
 */
 
-var socks = chrome.sockets.tcp, socketId, GameState = require("../gamestate.js"),
-  gs = new GameState(),
-  myId = -1,
+// Variable and function declaration
+var socks = chrome.sockets.tcp,
+  socketId,
+  GameState = require("../gamestate.js"),
+  gs = new GameState(),               // The gamestate object, containing the game logic and data
+  myId = -1,                          // The id assigned to this client by the server, established during connection completion
   Tokens = require("../tokens.js"),
   Tiles  = require("../tiles.js"),
   Player = require("../player.js"),
-  hasCollected = false,
+  hasCollected = false,               // These three booleans help with turn sequencing
   hasSlid = false,
   isMyTurn = false,
-  PASSWORD = "FABIO",
-  socketId = '',
+  PASSWORD = "FABIO",                 // Password used to authenticate incoming/outgoing administrative messages
+  socketId = '',                      
   finishTurn,
   setupTurn,
   renderScores,
@@ -31,6 +34,7 @@ var socks = chrome.sockets.tcp, socketId, GameState = require("../gamestate.js")
   generateTile,
   rotBtn,
 
+  // A function to write to the in-game console
   log = function (msg) {
     "use strict";
     logCount += 1;
@@ -52,6 +56,7 @@ var socks = chrome.sockets.tcp, socketId, GameState = require("../gamestate.js")
     return decoder.decode(dataView);
   };
 
+// A function used to regulate turn sequencing. If the current client has won the game, it will be detected here. 
 setupTurn = function () {
   "use strict";
   console.log("Setting up turn...");
@@ -74,6 +79,7 @@ setupTurn = function () {
   console.log("Turn setup complete!");
 };
 
+// This function is used when the game ends. It disables all client actions except chat. 
 endGame = function () {
   "use strict";
   isMyTurn = false;
@@ -81,17 +87,21 @@ endGame = function () {
   hasCollected = true;
 };
 
+// When this client's turn needs to end, it will call this function
 finishTurn = function () {
   "use strict";
+  // Increment the active player number, within the bounds of the number of players in this game
   gs.activePlayerNum = (gs.activePlayerNum + 1) % gs.players.length;
   hasSlid = false;
   hasCollected = false;
   isMyTurn = false;
+  // Send the modified gamestate back to the client. 
   sendGamestate();
   log("Ending turn.");
   setupTurn();
 };
 
+// Called when this client decides to finish their turn
 finBtn = function () {
   "use strict";
   console.log("Finishing turn...");
@@ -107,6 +117,7 @@ finBtn = function () {
   console.log("Turn finishing complete!");
 };
 
+// Called when this client decides to pick up a token
 pickupBtn = function () {
   "use strict";
   console.log("Picking up token...");
@@ -122,6 +133,7 @@ pickupBtn = function () {
     hasCollected = true;
     populateToks();
     renderScores();
+    // Turn automatically ends when play picks up a token
     finishTurn();
   } else {
     log("Unable to pick up token.");
@@ -129,6 +141,7 @@ pickupBtn = function () {
   console.log("Token pickup complete!");
 };
 
+// Rotates the tile to be played (preview tile in some contexts)
 rotBtn = function () {
   "use strict";
   if (!isMyTurn) {
@@ -142,6 +155,7 @@ rotBtn = function () {
   console.log("Tile rotation complete!");
 };
 
+// Dynamically creates the scoreboard
 renderScores = function () {
   "use strict";
   console.log("Rendering scores...");
@@ -248,7 +262,7 @@ $(document).ready(function () {
   socks.onReceive.addListener(function (info) {
     var msg = ab2str(info.data), adminMsg, gameStr = "", i, j, currentIndex, numPlayers;
     adminMsg = msg.toString().split('\n');
-    // is this an admin message?
+    // is this an admin message?          // An admin message is a system communication message
     if (adminMsg[0] === PASSWORD) {
       // Yes, decode it
 
@@ -338,29 +352,29 @@ $(document).ready(function () {
     log("ReceiveError " + JSON.stringify(info));
   });
 
-  // Move the player up
+  // Move the players
   $('#m_up').click(function () {
     movePlayer('u');
   });
 
-  // Move the player down
   $('#m_down').click(function () {
     movePlayer('d');
   });
 
-  // Move the player left
   $('#m_left').click(function () {
     movePlayer('l');
   });
-
+  
   $('#m_right').click(function () {
     movePlayer('r');
   });
 
+  // Rotate the tile
   $('#rot_tile').click(function () {
     rotBtn();
   });
 
+  // Slide the tiles
   $('#s_up').click(function () {
     slideTile('u');
   });
@@ -385,6 +399,7 @@ $(document).ready(function () {
     pickupBtn();
   });
 
+  // Plays and loops ambiance at beginning of client startup
   $("#jquery_jplayer_1").jPlayer( {
     ready: function(event) {
       $(this).jPlayer("setMedia", {
@@ -623,6 +638,7 @@ populateToks = function () {
   }
 };
 
+// A function that dynamically creates the gameboard using the current gamestate
 populateGameBoard = function (container) {
   "use strict";
   var table, playerIndex, row, i, j, k, tile;
